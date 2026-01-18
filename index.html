@@ -7,30 +7,38 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body data-theme="light" data-notation="western">
-    <header>
-      <h1>🎹 Piano Learner Studio</h1>
-      <p>Make music with falling notes, chord trainers, and guided theory drills.</p>
-      <div class="mode-switcher" role="group" aria-label="Theme mode">
-        <span class="mode-label">Mode:</span>
-        <button class="mode-btn is-active" data-theme="light" type="button">Light</button>
-        <button class="mode-btn" data-theme="dark" type="button">Dark</button>
+  <body data-notation="western">
+    <header class="hero">
+      <div class="hero-inner">
+        <p class="eyebrow">Piano Learner Studio</p>
+        <h1>Practice. Visualize. Play.</h1>
+        <p class="hero-subtitle">
+          A focused piano lab with falling notes, chord drills, and guided theory—built to make
+          practice feel modern.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#studio">Open the Studio</a>
+        </div>
       </div>
+      <div class="wave" aria-hidden="true"></div>
     </header>
 
     <nav class="chapter-switcher" aria-label="Page navigation">
       <a href="#studio">Song Studio</a>
-      <a href="#fundamentals">Music Fundamentals</a>
-      <a href="#walkthrough">Guided Lesson</a>
+      <a href="#playground">Practice</a>
+      <a href="#fundamentals">Fundamentals</a>
+      <a href="#progressions">Progressions</a>
+      <a href="#circle-of-fifths">Circle of Fifths</a>
+      <a href="#walkthrough">Lesson</a>
     </nav>
 
     <main>
-      <section class="example-section notebook-section" id="studio">
+      <section class="example-section notebook-section screen-section" id="studio">
         <div class="notebook-toolbar">
           <div class="toolbar-left">
             <span class="notebook-chip">Song Studio</span>
@@ -43,7 +51,7 @@
         </div>
 
         <div class="notebook-workspace">
-          <div class="notebook-group">
+          <div class="notebook-group notes-group">
             <div class="group-header">
               <h3>Song Notes</h3>
               <button class="notebook-btn secondary" id="sample-btn" type="button">
@@ -76,12 +84,9 @@
               </div>
               <textarea class="cell-editor" id="notes-input" spellcheck="false">C4:1 D4:1 E4:1 F4:1 G4:1 A4:1 B4:1 C5:2</textarea>
             </article>
-            <p class="key-hint">
-              Keyboard: Z X C V B N M = C3–B3, A S D F G H J = C4–B4, W E T Y U and 2 3 5 6 7 = black keys.
-            </p>
           </div>
 
-          <div class="notebook-group">
+          <div class="notebook-group tempo-group">
             <h3>Tempo &amp; Sound</h3>
             <article class="notebook-cell">
               <div class="controls">
@@ -125,8 +130,8 @@
             </article>
           </div>
 
-          <div class="notebook-group">
-            <h3>Falling Notes Stage</h3>
+          <div class="notebook-group stage-group">
+            <h3>Virtual Piano + Falling Notes</h3>
             <article class="notebook-cell">
               <div class="lane" id="lane">
                 <div class="fall-zone" id="fall-zone"></div>
@@ -174,100 +179,18 @@
                 </div>
               </div>
             </article>
+            <p class="key-hint">
+              Keyboard: Z X C V B N M = C3–B3, A S D F G H J = C4–B4, W E T Y U and 2 3 5 6 7 = black keys.
+            </p>
           </div>
         </div>
       </section>
 
-      <section class="example-section" id="fundamentals">
-        <h2>Music Fundamentals</h2>
+      <section class="example-section screen-section" id="playground">
+        <h2>Practice Playground</h2>
         <p class="section-intro">
-          Learn the building blocks: rhythm, scales, and chords. Each card pairs the idea with
-          a piano visual.
+          Load chords and scales into the studio, then listen to them with falling notes.
         </p>
-        <div class="fundamentals-grid">
-          <article class="fundamentals-card">
-            <div class="fundamentals-content">
-              <h3>Music theory basics</h3>
-              <ul class="music-list">
-                <li>Notes repeat every 12 keys (octaves).</li>
-                <li>Whole and half steps shape every scale.</li>
-                <li>Major scales follow W-W-H-W-W-W-H.</li>
-                <li>Count steady beats to keep time.</li>
-              </ul>
-            </div>
-            <div class="piano-visual" aria-hidden="true">
-              <svg class="piano-illustration" viewBox="0 0 280 120">
-                <rect class="key-white highlight" x="0" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="40" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white highlight" x="80" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="120" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white highlight" x="160" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="200" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white highlight" x="240" y="10" width="40" height="100" rx="6" />
-                <rect class="key-black" x="28" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="68" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="148" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="188" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="228" y="10" width="24" height="60" rx="4" />
-              </svg>
-            </div>
-          </article>
-          <article class="fundamentals-card">
-            <div class="fundamentals-content">
-              <h3>Piano chords &amp; triads</h3>
-              <ul class="music-list">
-                <li>Major chord = root + major 3rd + perfect 5th.</li>
-                <li>Minor chord lowers the 3rd by a half step.</li>
-                <li>Play chords together (block) or one-by-one (arpeggio).</li>
-                <li>Common progression: I-IV-V-I.</li>
-              </ul>
-            </div>
-            <div class="piano-visual" aria-hidden="true">
-              <svg class="piano-illustration" viewBox="0 0 280 120">
-                <rect class="key-white highlight" x="0" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="40" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white highlight" x="80" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="120" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white highlight" x="160" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="200" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="240" y="10" width="40" height="100" rx="6" />
-                <rect class="key-black" x="28" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="68" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="148" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="188" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="228" y="10" width="24" height="60" rx="4" />
-              </svg>
-            </div>
-          </article>
-          <article class="fundamentals-card">
-            <div class="fundamentals-content">
-              <h3>Whole steps &amp; half steps</h3>
-              <ul class="music-list">
-                <li>A half step is the very next key, black or white.</li>
-                <li>A whole step skips one key in between.</li>
-                <li>C→C# is a half step, C→D is a whole step.</li>
-                <li>Use steps to build scales and chords.</li>
-              </ul>
-            </div>
-            <div class="piano-visual" aria-hidden="true">
-              <svg class="piano-illustration" viewBox="0 0 280 120">
-                <rect class="key-white highlight" x="0" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="40" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white highlight" x="80" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="120" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="160" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="200" y="10" width="40" height="100" rx="6" />
-                <rect class="key-white" x="240" y="10" width="40" height="100" rx="6" />
-                <rect class="key-black highlight" x="28" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="68" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="148" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="188" y="10" width="24" height="60" rx="4" />
-                <rect class="key-black" x="228" y="10" width="24" height="60" rx="4" />
-              </svg>
-            </div>
-          </article>
-        </div>
-
         <div class="playground">
           <div class="playground-header">
             <div>
@@ -309,7 +232,330 @@
         </div>
       </section>
 
-      <section class="example-section" id="walkthrough">
+      <section class="example-section screen-section" id="fundamentals">
+        <h2>Fundamentals: Notes, Steps, Scales</h2>
+        <p class="section-intro">Start with the raw materials, then learn the patterns.</p>
+        <div class="theory-grid">
+          <article class="info-card">
+            <h3><span class="step-pill">1</span> The 12 Notes</h3>
+            <div class="note-row">C – C♯/D♭ – D – D♯/E♭ – E – F – F♯/G♭ – G – G♯/A♭ – A – A♯/B♭ – B → (C)</div>
+            <ul class="music-list">
+              <li>Adjacent keys = <strong>1 semitone</strong>.</li>
+              <li>12 semitones = <strong>1 octave</strong>.</li>
+            </ul>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">2</span> Whole &amp; Half Steps</h3>
+            <ul class="music-list">
+              <li>A half step is the very next key, black or white.</li>
+              <li>A whole step skips one key in between.</li>
+              <li>C→C# is a half step, C→D is a whole step.</li>
+            </ul>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">3</span> Major Scale Formula</h3>
+            <p>Every major scale follows the same pattern.</p>
+            <div class="formula">W – W – H – W – W – W – H</div>
+            <p class="note-line">Example: C major = C – D – E – F – G – A – B – C.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="example-section screen-section" id="keys-chords">
+        <h2>Keys &amp; Chords</h2>
+        <p class="section-intro">Keys define the home base. Chords create harmony.</p>
+        <div class="theory-grid">
+          <article class="info-card">
+            <h3><span class="step-pill">4</span> What Is a Key?</h3>
+            <ul class="music-list">
+              <li>Defines which notes feel like “home”.</li>
+              <li>Defines which sharps or flats are consistently used.</li>
+            </ul>
+            <div class="key-examples">
+              <span>Key of C → no sharps/flats</span>
+              <span>Key of G → F♯</span>
+              <span>Key of D → F♯, C♯</span>
+            </div>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">5</span> Chords: Harmony Explained Simply</h3>
+            <div class="formula">Major = 1 – 3 – 5 &nbsp;|&nbsp; Minor = 1 – ♭3 – 5</div>
+            <p class="note-line">Example: C major = C E G, A minor = A C E.</p>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">6</span> Piano Chords &amp; Triads</h3>
+            <ul class="music-list">
+              <li>Major chord = root + major 3rd + perfect 5th.</li>
+              <li>Minor chord lowers the 3rd by a half step.</li>
+              <li>Play chords together (block) or one‑by‑one (arpeggio).</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="example-section screen-section" id="progressions">
+        <h2>🎹 Chord Progressions Used in 90% of Songs (Piano Guide)</h2>
+        <p class="section-intro">
+          This guide teaches the <strong>core chord progressions</strong> that power most popular music
+          (pop, film, devotional, light classical, even many Carnatic adaptations). Once you internalize
+          these, you can <strong>play thousands of songs</strong> with confidence.
+        </p>
+        <div class="fundamentals-split">
+          <article class="info-card">
+            <h3><span class="step-pill">7</span> The Number System (Critical Concept)</h3>
+            <p>Instead of memorizing chords per song, musicians think in <strong>numbers</strong>.</p>
+            <ul class="music-list">
+              <li><strong>I</strong> = 1st chord (home)</li>
+              <li><strong>ii</strong> = 2nd chord</li>
+              <li><strong>iii</strong> = 3rd chord</li>
+              <li><strong>IV</strong> = 4th chord</li>
+              <li><strong>V</strong> = 5th chord</li>
+              <li><strong>vi</strong> = 6th chord</li>
+            </ul>
+            <p class="note-line"><strong>Uppercase</strong> = Major, <strong>lowercase</strong> = Minor.</p>
+          </article>
+          <article class="info-card">
+            <h4>Example: Key of C</h4>
+            <table class="theory-table">
+              <thead>
+                <tr>
+                  <th>Number</th>
+                  <th>Chord</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>I</td>
+                  <td>C</td>
+                </tr>
+                <tr>
+                  <td>ii</td>
+                  <td>Dm</td>
+                </tr>
+                <tr>
+                  <td>iii</td>
+                  <td>Em</td>
+                </tr>
+                <tr>
+                  <td>IV</td>
+                  <td>F</td>
+                </tr>
+                <tr>
+                  <td>V</td>
+                  <td>G</td>
+                </tr>
+                <tr>
+                  <td>vi</td>
+                  <td>Am</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="progression-hero">
+          <div class="hero-header">
+            <span class="tag">Most important progression</span>
+            <h3>I – V – vi – IV</h3>
+            <p>Used in <strong>40–50%</strong> of modern music.</p>
+          </div>
+          <div class="progression-flow">C → G → Am → F</div>
+          <div class="hero-grid">
+            <article class="info-card">
+              <h4>Songs that use it (conceptually)</h4>
+              <ul class="music-list">
+                <li>Pop ballads</li>
+                <li>Film background music</li>
+                <li>Devotional / bhajans</li>
+              </ul>
+            </article>
+            <article class="info-card">
+              <h4>Why it works</h4>
+              <ul class="music-list">
+                <li>Strong home (I)</li>
+                <li>Tension (V)</li>
+                <li>Emotional release (vi)</li>
+                <li>Warm return (IV)</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="example-section screen-section" id="progressions-core">
+        <h2>Essential Progressions Library</h2>
+        <p class="section-intro">These progressions show up across genres. Practice them in any key.</p>
+        <div class="progression-grid">
+          <article class="info-card progression-card">
+            <div class="progression-title">
+              <h3>I – IV – V – I</h3>
+              <span class="tag">Foundation</span>
+            </div>
+            <div class="progression-flow">C → F → G → C</div>
+            <ul class="music-list">
+              <li>Used in folk, classical, devotional, blues.</li>
+              <li>Very stable and easy to sing.</li>
+              <li>Perfect for beginners.</li>
+            </ul>
+            <p class="note-line">If you know only this progression, you can already accompany songs.</p>
+          </article>
+          <article class="info-card progression-card">
+            <div class="progression-title">
+              <h3>vi – IV – I – V</h3>
+              <span class="tag">Emotional</span>
+            </div>
+            <div class="progression-flow">Am → F → C → G</div>
+            <p class="progression-meta">Mood: longing, romance, devotion.</p>
+            <p class="note-line">Used heavily in film songs and slow pieces.</p>
+          </article>
+          <article class="info-card progression-card">
+            <div class="progression-title">
+              <h3>ii – V – I</h3>
+              <span class="tag">Jazz / Classical</span>
+            </div>
+            <div class="progression-flow">Dm → G → C</div>
+            <ul class="music-list">
+              <li>ii builds tension.</li>
+              <li>V increases tension.</li>
+              <li>I resolves completely.</li>
+            </ul>
+            <p class="note-line">This is the cleanest resolution in music.</p>
+          </article>
+          <article class="info-card progression-card">
+            <div class="progression-title">
+              <h3>I – vi – IV – V</h3>
+              <span class="tag">Golden Oldies</span>
+            </div>
+            <div class="progression-flow">C → Am → F → G</div>
+            <ul class="music-list">
+              <li>Old melodies and film classics.</li>
+              <li>Devotional choruses.</li>
+              <li>Very singable and nostalgic.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="example-section screen-section" id="progressions-practice">
+        <h2>Practice Progressions on Piano</h2>
+        <p class="section-intro">Start with root position, then move to inversions for smoother motion.</p>
+        <div class="practice-grid">
+          <article class="info-card">
+            <h3><span class="step-pill">8</span> How This Looks on Piano (Practical)</h3>
+            <p>Play chords in <strong>root position</strong> first.</p>
+            <ul class="music-list">
+              <li>C = C E G</li>
+              <li>F = F A C</li>
+              <li>G = G B D</li>
+              <li>Am = A C E</li>
+            </ul>
+            <p class="note-line">Then move to <strong>inversions</strong> later for smooth, professional transitions.</p>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">9</span> One-Key Practice Routine (10 minutes)</h3>
+            <p>Pick <strong>one key per day</strong>.</p>
+            <ol class="routine-list">
+              <li>Play the scale.</li>
+              <li>
+                Play these progressions:
+                <div class="progression-tags">
+                  <span>I – IV – V – I</span>
+                  <span>I – V – vi – IV</span>
+                  <span>vi – IV – I – V</span>
+                </div>
+              </li>
+              <li>Hold root notes with left hand.</li>
+              <li>Play chords with right hand.</li>
+            </ol>
+          </article>
+          <article class="info-card">
+            <h3>🔁 Universal Truth</h3>
+            <blockquote class="music-quote">
+              <span>🎵 Melody changes</span>
+              <span>🎹 Lyrics change</span>
+              <span>🔁 <strong>Chord progressions repeat across songs</strong></span>
+            </blockquote>
+            <p class="note-line">That’s why learning progressions = learning music.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="example-section screen-section" id="circle-of-fifths">
+        <h2>🎼 Circle of Fifths Essentials</h2>
+        <p class="section-intro">
+          The Circle of Fifths organizes <strong>all 12 keys</strong> so you can predict chords and key changes.
+        </p>
+        <div class="circle-grid">
+          <article class="info-card">
+            <h3><span class="step-pill">10</span> The Circle of 12</h3>
+            <p>Clockwise → add sharps. Counter‑clockwise → add flats.</p>
+            <div class="circle-columns">
+              <div>
+                <h4>Clockwise (Sharps)</h4>
+                <div class="progression-flow">C → G → D → A → E → B → F♯</div>
+              </div>
+              <div>
+                <h4>Counter‑Clockwise (Flats)</h4>
+                <div class="progression-flow">C → F → B♭ → E♭ → A♭ → D♭ → G♭</div>
+              </div>
+            </div>
+            <p class="note-line">Each move = perfect fifth.</p>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">11</span> Why Fifths Matter</h3>
+            <ul class="music-list">
+              <li>A perfect fifth sounds the most stable after the octave.</li>
+              <li>Most chord progressions move by fifths.</li>
+              <li>Most key changes follow the circle.</li>
+            </ul>
+            <div class="progression-flow">I → IV → V → I</div>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">12</span> Relative Minor Keys</h3>
+            <p>Rule: relative minor = <strong>6th note</strong> of the major scale.</p>
+            <ul class="music-list">
+              <li>C major → A minor</li>
+              <li>G major → E minor</li>
+              <li>D major → B minor</li>
+            </ul>
+            <p class="note-line">Same notes, different tonal center.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="example-section screen-section" id="circle-practice">
+        <h2>Circle of Fifths Practice</h2>
+        <p class="section-intro">Connect theory to your hands with daily, focused drills.</p>
+        <div class="theory-grid">
+          <article class="info-card">
+            <h3><span class="step-pill">13</span> How the Circle Helps Piano Players</h3>
+            <ol class="routine-list">
+              <li>Instantly know sharps/flats.</li>
+              <li>Transpose songs easily.</li>
+              <li>Predict chord changes.</li>
+              <li>Learn keys in the right order.</li>
+            </ol>
+            <p class="note-line">Practice keys around the circle, not randomly.</p>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">14</span> Daily Piano Theory Practice (10 minutes)</h3>
+            <ol class="routine-list">
+              <li>Pick one key from the circle.</li>
+              <li>Play its scale.</li>
+              <li>Play I – IV – V – I.</li>
+              <li>Play I – V – vi – IV.</li>
+              <li>Identify the relative minor.</li>
+            </ol>
+          </article>
+          <article class="info-card">
+            <h3><span class="step-pill">15</span> Chords on the Circle</h3>
+            <p>Neighboring keys share common chords, which makes transitions feel natural.</p>
+            <div class="progression-flow">C → G → D → A</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="example-section screen-section" id="walkthrough">
         <h2>Guided lesson</h2>
         <p class="section-intro">
           Follow each step, then paste the drills into the notes box to practice in time.

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Piano Learner Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-theme="light" data-notation="western">
+    <header>
+      <h1>🎹 Piano Learner Studio</h1>
+      <p>Make music with falling notes, chord trainers, and guided theory drills.</p>
+      <div class="mode-switcher" role="group" aria-label="Theme mode">
+        <span class="mode-label">Mode:</span>
+        <button class="mode-btn is-active" data-theme="light" type="button">Light</button>
+        <button class="mode-btn" data-theme="dark" type="button">Dark</button>
+      </div>
+    </header>
+
+    <nav class="chapter-switcher" aria-label="Page navigation">
+      <a href="#studio">Song Studio</a>
+      <a href="#fundamentals">Music Fundamentals</a>
+      <a href="#walkthrough">Guided Lesson</a>
+    </nav>
+
+    <main>
+      <section class="example-section notebook-section" id="studio">
+        <div class="notebook-toolbar">
+          <div class="toolbar-left">
+            <span class="notebook-chip">Song Studio</span>
+            <span class="notebook-status" id="status">Ready to play.</span>
+          </div>
+          <div class="toolbar-actions">
+            <button class="notebook-btn" id="play-btn" type="button">Play</button>
+            <button class="notebook-btn secondary" id="stop-btn" type="button">Stop</button>
+          </div>
+        </div>
+
+        <div class="notebook-workspace">
+          <div class="notebook-group">
+            <div class="group-header">
+              <h3>Song Notes</h3>
+              <button class="notebook-btn secondary" id="sample-btn" type="button">
+                Load sample
+              </button>
+            </div>
+            <div class="notation-tabs" role="tablist" aria-label="Notation style">
+              <button class="notation-btn is-active" type="button" data-notation="western">
+                Western Notes
+              </button>
+              <button class="notation-btn" type="button" data-notation="carnatic">
+                Carnatic (Sargam)
+              </button>
+            </div>
+            <p class="section-intro notation-hint hint-western">
+              Type notes like <strong>C4:1 D4:2</strong> or sharps/flats like
+              <strong>F#4 Bb3</strong>. Use <strong>R:1</strong> for rests. Bars (|) are optional.
+            </p>
+            <p class="section-intro notation-hint hint-carnatic">
+              Use swaras <strong>Sa Ri Ga Ma Pa Dha Ni</strong> (S R G M P D N). Example:
+              <strong>S4:1 R4:1 G4:1</strong>. Use <strong>REST:1</strong> for rests.
+            </p>
+            <article class="notebook-cell markdown-cell">
+              <h4>Note format</h4>
+              <p id="note-format">Try: C4:1 D4:1 E4:1 F4:1 | G4:2 R:1 G4:1</p>
+            </article>
+            <article class="notebook-cell code-cell">
+              <div class="cell-top">
+                <span class="cell-title">Paste your melody</span>
+              </div>
+              <textarea class="cell-editor" id="notes-input" spellcheck="false">C4:1 D4:1 E4:1 F4:1 G4:1 A4:1 B4:1 C5:2</textarea>
+            </article>
+            <p class="key-hint">
+              Keyboard: Z X C V B N M = C3–B3, A S D F G H J = C4–B4, W E T Y U and 2 3 5 6 7 = black keys.
+            </p>
+          </div>
+
+          <div class="notebook-group">
+            <h3>Tempo &amp; Sound</h3>
+            <article class="notebook-cell">
+              <div class="controls">
+                <label>
+                  Tempo (BPM)
+                  <input type="range" id="tempo" min="50" max="140" value="90" />
+                  <span id="tempo-value">90</span>
+                </label>
+                <label>
+                  Fall speed
+                  <input type="range" id="fall" min="700" max="2000" value="1200" />
+                  <span id="fall-value">1200ms</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" id="audio-toggle" checked />
+                  Audio playback
+                </label>
+                <label>
+                  Volume
+                  <input type="range" id="volume" min="0" max="100" value="35" />
+                  <span id="volume-value">35%</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" id="loop" />
+                  Loop playback
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" id="map-toggle" />
+                  Show keyboard map
+                </label>
+                <div class="range-toggle" role="group" aria-label="Keyboard range">
+                  <span class="range-label">Keyboard range</span>
+                  <button class="range-btn is-active" type="button" data-range="lower">
+                    C3–B4
+                  </button>
+                  <button class="range-btn" type="button" data-range="upper">
+                    C4–B5
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="notebook-group">
+            <h3>Falling Notes Stage</h3>
+            <article class="notebook-cell">
+              <div class="lane" id="lane">
+                <div class="fall-zone" id="fall-zone"></div>
+                <div class="keyboard" id="keyboard">
+                  <div class="white-keys">
+                    <div class="key white" data-note="C3"><span>C3</span></div>
+                    <div class="key white" data-note="D3"><span>D3</span></div>
+                    <div class="key white" data-note="E3"><span>E3</span></div>
+                    <div class="key white" data-note="F3"><span>F3</span></div>
+                    <div class="key white" data-note="G3"><span>G3</span></div>
+                    <div class="key white" data-note="A3"><span>A3</span></div>
+                    <div class="key white" data-note="B3"><span>B3</span></div>
+                    <div class="key white" data-note="C4"><span>C4</span></div>
+                    <div class="key white" data-note="D4"><span>D4</span></div>
+                    <div class="key white" data-note="E4"><span>E4</span></div>
+                    <div class="key white" data-note="F4"><span>F4</span></div>
+                    <div class="key white" data-note="G4"><span>G4</span></div>
+                    <div class="key white" data-note="A4"><span>A4</span></div>
+                    <div class="key white" data-note="B4"><span>B4</span></div>
+                    <div class="key white" data-note="C5"><span>C5</span></div>
+                    <div class="key white" data-note="D5"><span>D5</span></div>
+                    <div class="key white" data-note="E5"><span>E5</span></div>
+                    <div class="key white" data-note="F5"><span>F5</span></div>
+                    <div class="key white" data-note="G5"><span>G5</span></div>
+                    <div class="key white" data-note="A5"><span>A5</span></div>
+                    <div class="key white" data-note="B5"><span>B5</span></div>
+                  </div>
+                  <div class="black-keys">
+                    <div class="key black" data-note="C#3" style="--pos: 0"><span>C#3</span></div>
+                    <div class="key black" data-note="D#3" style="--pos: 1"><span>D#3</span></div>
+                    <div class="key black" data-note="F#3" style="--pos: 3"><span>F#3</span></div>
+                    <div class="key black" data-note="G#3" style="--pos: 4"><span>G#3</span></div>
+                    <div class="key black" data-note="A#3" style="--pos: 5"><span>A#3</span></div>
+                    <div class="key black" data-note="C#4" style="--pos: 7"><span>C#4</span></div>
+                    <div class="key black" data-note="D#4" style="--pos: 8"><span>D#4</span></div>
+                    <div class="key black" data-note="F#4" style="--pos: 10"><span>F#4</span></div>
+                    <div class="key black" data-note="G#4" style="--pos: 11"><span>G#4</span></div>
+                    <div class="key black" data-note="A#4" style="--pos: 12"><span>A#4</span></div>
+                    <div class="key black" data-note="C#5" style="--pos: 14"><span>C#5</span></div>
+                    <div class="key black" data-note="D#5" style="--pos: 15"><span>D#5</span></div>
+                    <div class="key black" data-note="F#5" style="--pos: 17"><span>F#5</span></div>
+                    <div class="key black" data-note="G#5" style="--pos: 18"><span>G#5</span></div>
+                    <div class="key black" data-note="A#5" style="--pos: 19"><span>A#5</span></div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="example-section" id="fundamentals">
+        <h2>Music Fundamentals</h2>
+        <p class="section-intro">
+          Learn the building blocks: rhythm, scales, and chords. Each card pairs the idea with
+          a piano visual.
+        </p>
+        <div class="fundamentals-grid">
+          <article class="fundamentals-card">
+            <div class="fundamentals-content">
+              <h3>Music theory basics</h3>
+              <ul class="music-list">
+                <li>Notes repeat every 12 keys (octaves).</li>
+                <li>Whole and half steps shape every scale.</li>
+                <li>Major scales follow W-W-H-W-W-W-H.</li>
+                <li>Count steady beats to keep time.</li>
+              </ul>
+            </div>
+            <div class="piano-visual" aria-hidden="true">
+              <svg class="piano-illustration" viewBox="0 0 280 120">
+                <rect class="key-white highlight" x="0" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="40" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white highlight" x="80" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="120" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white highlight" x="160" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="200" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white highlight" x="240" y="10" width="40" height="100" rx="6" />
+                <rect class="key-black" x="28" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="68" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="148" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="188" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="228" y="10" width="24" height="60" rx="4" />
+              </svg>
+            </div>
+          </article>
+          <article class="fundamentals-card">
+            <div class="fundamentals-content">
+              <h3>Piano chords &amp; triads</h3>
+              <ul class="music-list">
+                <li>Major chord = root + major 3rd + perfect 5th.</li>
+                <li>Minor chord lowers the 3rd by a half step.</li>
+                <li>Play chords together (block) or one-by-one (arpeggio).</li>
+                <li>Common progression: I-IV-V-I.</li>
+              </ul>
+            </div>
+            <div class="piano-visual" aria-hidden="true">
+              <svg class="piano-illustration" viewBox="0 0 280 120">
+                <rect class="key-white highlight" x="0" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="40" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white highlight" x="80" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="120" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white highlight" x="160" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="200" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="240" y="10" width="40" height="100" rx="6" />
+                <rect class="key-black" x="28" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="68" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="148" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="188" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="228" y="10" width="24" height="60" rx="4" />
+              </svg>
+            </div>
+          </article>
+          <article class="fundamentals-card">
+            <div class="fundamentals-content">
+              <h3>Whole steps &amp; half steps</h3>
+              <ul class="music-list">
+                <li>A half step is the very next key, black or white.</li>
+                <li>A whole step skips one key in between.</li>
+                <li>C→C# is a half step, C→D is a whole step.</li>
+                <li>Use steps to build scales and chords.</li>
+              </ul>
+            </div>
+            <div class="piano-visual" aria-hidden="true">
+              <svg class="piano-illustration" viewBox="0 0 280 120">
+                <rect class="key-white highlight" x="0" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="40" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white highlight" x="80" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="120" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="160" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="200" y="10" width="40" height="100" rx="6" />
+                <rect class="key-white" x="240" y="10" width="40" height="100" rx="6" />
+                <rect class="key-black highlight" x="28" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="68" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="148" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="188" y="10" width="24" height="60" rx="4" />
+                <rect class="key-black" x="228" y="10" width="24" height="60" rx="4" />
+              </svg>
+            </div>
+          </article>
+        </div>
+
+        <div class="playground">
+          <div class="playground-header">
+            <div>
+              <h3>Chord &amp; scale playground</h3>
+              <p class="section-intro">
+                Tap a button to load a pattern into the editor and hear it with falling notes.
+              </p>
+            </div>
+            <div class="playground-buttons">
+              <button class="notebook-btn playground-btn" data-title="C Major" data-notes="C4:2 E4:2 G4:2" data-autoplay="true">C Major</button>
+              <button class="notebook-btn playground-btn" data-title="A Minor" data-notes="A3:2 C4:2 E4:2" data-autoplay="true">A Minor</button>
+              <button class="notebook-btn playground-btn" data-title="G Major" data-notes="G3:2 B3:2 D4:2" data-autoplay="true">G Major</button>
+              <button class="notebook-btn playground-btn" data-title="C Major Scale" data-notes="C4:1 D4:1 E4:1 F4:1 G4:1 A4:1 B4:1 C5:2" data-autoplay="true">C Major Scale</button>
+            </div>
+          </div>
+          <div class="playground-grid">
+            <div class="playground-card">
+              <h4>How to play</h4>
+              <ul class="music-list">
+                <li>Use fingers 1-3-5 for triads.</li>
+                <li>Keep your wrist relaxed and centered.</li>
+                <li>Hold the chord for the full beat count.</li>
+              </ul>
+            </div>
+            <div class="playground-card">
+              <h4>Progression drill</h4>
+              <p>Load a I-IV-V-I progression and practice switching smoothly.</p>
+              <button
+                class="notebook-btn secondary playground-btn"
+                data-title="I-IV-V-I Progression"
+                data-notes="C4:2 E4:2 G4:2 | F4:2 A4:2 C5:2 | G4:2 B4:2 D5:2 | C4:2 E4:2 G4:2"
+                data-autoplay="true"
+                type="button"
+              >
+                Load I-IV-V-I
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="example-section" id="walkthrough">
+        <h2>Guided lesson</h2>
+        <p class="section-intro">
+          Follow each step, then paste the drills into the notes box to practice in time.
+        </p>
+        <div class="walkthrough-grid">
+          <ol class="lecture-steps">
+            <li>
+              <span class="step-index">01</span>
+              <div class="step-body">
+                <h3>Find middle C</h3>
+                <p>
+                  Locate the group of two black keys. Middle C (C4) is the white key just to
+                  the left.
+                </p>
+                <div class="step-drill">Try: C4:1 C4:1 D4:1 E4:1</div>
+              </div>
+            </li>
+            <li>
+              <span class="step-index">02</span>
+              <div class="step-body">
+                <h3>Finger numbers</h3>
+                <p>
+                  Place your right hand with thumb on C4. Fingers 1-5 map to C-G.
+                </p>
+                <div class="step-drill">Try: C4:1 D4:1 E4:1 F4:1 G4:1</div>
+              </div>
+            </li>
+            <li>
+              <span class="step-index">03</span>
+              <div class="step-body">
+                <h3>Count a steady beat</h3>
+                <p>
+                  Tap your foot and count "1-2-3-4." Hold longer notes for extra counts.
+                </p>
+                <div class="step-drill">Try: C4:2 D4:2 E4:4</div>
+              </div>
+            </li>
+            <li>
+              <span class="step-index">04</span>
+              <div class="step-body">
+                <h3>Simple melody</h3>
+                <p>
+                  Combine movement and rhythm. Keep your wrist relaxed and fingers curved.
+                </p>
+                <div class="step-drill">
+                  Try: C4:1 E4:1 G4:1 R:1 G4:1 E4:1 C4:2
+                </div>
+              </div>
+            </li>
+            <li>
+              <span class="step-index">05</span>
+              <div class="step-body">
+                <h3>Loop for precision</h3>
+                <p>
+                  Slow the tempo, turn on looping, and repeat until the notes feel automatic.
+                </p>
+                <div class="step-drill">Goal: 3 clean loops without mistakes.</div>
+              </div>
+            </li>
+          </ol>
+
+          <aside class="lecture-panel">
+            <h3>Lesson checklist</h3>
+            <ul>
+              <li>Warm up with the C major scale.</li>
+              <li>Play the rhythm drill at 70 BPM.</li>
+              <li>Turn on audio and match the falling notes.</li>
+              <li>Loop the melody drill 3 times.</li>
+            </ul>
+            <div class="panel-callout">
+              Tip: Use longer notes with <strong>:2</strong> or <strong>:4</strong> to build
+              control.
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Built for focused practice. Keep it simple, repeat often.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

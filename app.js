@@ -239,6 +239,131 @@ function parseBeats(value) {
   return beats;
 }
 
+function inferDefaultOctave(raw) {
+  const match = raw.match(/[A-Ga-g][#b]?\d/);
+  if (match) {
+    const digit = match[0].match(/\d/);
+    if (digit) return Number(digit[0]);
+  }
+  return 4;
+}
+
+function tokenizeWesternRaw(raw) {
+  const tokens = [];
+  if (!raw) return tokens;
+  const input = String(raw);
+  let i = 0;
+
+  while (i < input.length) {
+    const char = input[i];
+    if (char === "|") {
+      tokens.push("|");
+      i += 1;
+      continue;
+    }
+    if (char === "-") {
+      tokens.push("R");
+      i += 1;
+      continue;
+    }
+    if (/\s|,/.test(char)) {
+      i += 1;
+      continue;
+    }
+
+    const upper = char.toUpperCase();
+    if (upper === "R") {
+      let j = i;
+      const restMatch = input.slice(i).match(/^(rest)/i);
+      if (restMatch) {
+        j += restMatch[0].length;
+      } else {
+        j += 1;
+      }
+      let beat = "";
+      if (input[j] === ":") {
+        j += 1;
+        while (j < input.length && /[\d/]/.test(input[j])) {
+          beat += input[j];
+          j += 1;
+        }
+      }
+      tokens.push(beat ? `R:${beat}` : "R");
+      i = j;
+      continue;
+    }
+
+    if (/[A-Ga-g]/.test(char)) {
+      let token = upper;
+      i += 1;
+      if (input[i] === "#" || input[i] === "b") {
+        token += input[i];
+        i += 1;
+      }
+      if (/\d/.test(input[i])) {
+        token += input[i];
+        i += 1;
+      }
+      if (input[i] === ":") {
+        i += 1;
+        let beat = "";
+        while (i < input.length && /[\d/]/.test(input[i])) {
+          beat += input[i];
+          i += 1;
+        }
+        if (beat) {
+          token += `:${beat}`;
+        }
+      }
+      tokens.push(token);
+      continue;
+    }
+
+    i += 1;
+  }
+
+  return tokens;
+}
+
+function normalizeWesternInput(raw) {
+  const tokens = tokenizeWesternRaw(raw);
+  if (!tokens.length) {
+    return { value: raw.trim(), changed: false };
+  }
+
+  let changed = false;
+  let lastOctave = inferDefaultOctave(raw);
+
+  const normalized = tokens
+    .map((token) => {
+      if (token === "|") return "|";
+      if (/^R(?::|$)/i.test(token)) return token.toUpperCase();
+      const match = token.match(/^([A-G])([#b]?)(\d)?(?::([\d/]+))?$/);
+      if (!match) return null;
+      const octave = match[3] ? Number(match[3]) : lastOctave;
+      if (match[3]) {
+        lastOctave = Number(match[3]);
+      } else {
+        changed = true;
+      }
+      const note = `${match[1]}${match[2] || ""}${octave}`;
+      if (match[4]) return `${note}:${match[4]}`;
+      return note;
+    })
+    .filter(Boolean);
+
+  const value = normalized.join(" ").replace(/\s+\|\s+/g, " | ");
+  if (value !== raw.trim()) changed = true;
+  return { value, changed };
+}
+
+function normalizeInputForPlayback(raw) {
+  if (state.notationMode !== "western") {
+    return { value: raw.trim(), changed: false };
+  }
+  return normalizeWesternInput(raw);
+}
+
 function parseToken(token, mode) {
   const parts = token.split(":");
   if (parts.length > 2) return null;
@@ -594,6 +719,10 @@ function tick(now) {
 function play() {
   clearPlayback();
   clearStatus();
+  const normalized = normalizeInputForPlayback(notesInput.value);
+  if (normalized.changed) {
+    notesInput.value = normalized.value;
+  }
   const { events, ignored } = parseNotes(notesInput.value);
   const noteCount = events.filter((event) => !event.rest).length;
   const totalBeats = events.reduce((sum, event) => sum + event.beats, 0);
@@ -752,6 +881,15 @@ playgroundButtons.forEach((button) => {
 
 playBtn.addEventListener("click", play);
 stopBtn.addEventListener("click", stop);
+
+notesInput.addEventListener("paste", (event) => {
+  const text = event.clipboardData?.getData("text");
+  if (!text) return;
+  event.preventDefault();
+  const normalized = normalizeInputForPlayback(text);
+  notesInput.value = normalized.value || text.trim();
+  play();
+});
 
 sampleBtn.addEventListener("click", () => {
   notesInput.value =

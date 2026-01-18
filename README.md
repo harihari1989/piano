@@ -36,6 +36,3 @@ Toggle the keyboard range in the UI to shift octaves.
 - `index.html` — layout and content
 - `styles.css` — visuals and theming
 - `app.js` — playback engine, parsing, and interactions
-
-## License
-Add a license if you plan to distribute this project.

@@ -58,32 +58,99 @@
                 Load sample
               </button>
             </div>
-            <div class="notation-tabs" role="tablist" aria-label="Notation style">
-              <button class="notation-btn is-active" type="button" data-notation="western">
-                Western Notes
+            <div class="studio-tabs" role="tablist" aria-label="Song studio views">
+              <button
+                class="studio-tab is-active"
+                type="button"
+                data-tab="notes"
+                aria-controls="studio-notes"
+                aria-selected="true"
+              >
+                Song Notes
               </button>
-              <button class="notation-btn" type="button" data-notation="carnatic">
-                Carnatic (Sargam)
+              <button
+                class="studio-tab"
+                type="button"
+                data-tab="kuthu"
+                aria-controls="studio-kuthu"
+                aria-selected="false"
+              >
+                Agentic Kuthu
               </button>
             </div>
-            <p class="section-intro notation-hint hint-western">
-              Type notes like <strong>C4:1 D4:2</strong> or sharps/flats like
-              <strong>F#4 Bb3</strong>. Use <strong>R:1</strong> for rests. Bars (|) are optional.
-            </p>
-            <p class="section-intro notation-hint hint-carnatic">
-              Use swaras <strong>Sa Ri Ga Ma Pa Dha Ni</strong> (S R G M P D N). Example:
-              <strong>S4:1 R4:1 G4:1</strong>. Use <strong>REST:1</strong> for rests.
-            </p>
-            <article class="notebook-cell markdown-cell">
-              <h4>Note format</h4>
-              <p id="note-format">Try: C4:1 D4:1 E4:1 F4:1 | G4:2 R:1 G4:1</p>
-            </article>
-            <article class="notebook-cell code-cell">
-              <div class="cell-top">
-                <span class="cell-title">Paste your melody</span>
+            <div class="studio-panel is-active" data-panel="notes" id="studio-notes" role="tabpanel">
+              <div class="notation-tabs" role="tablist" aria-label="Notation style">
+                <button class="notation-btn is-active" type="button" data-notation="western">
+                  Western Notes
+                </button>
+                <button class="notation-btn" type="button" data-notation="carnatic">
+                  Carnatic (Sargam)
+                </button>
               </div>
-              <textarea class="cell-editor" id="notes-input" spellcheck="false">C4:1 D4:1 E4:1 F4:1 G4:1 A4:1 B4:1 C5:2</textarea>
-            </article>
+              <p class="section-intro notation-hint hint-western">
+                Type notes like <strong>C4:1 D4:2</strong> or sharps/flats like
+                <strong>F#4 Bb3</strong>. Use <strong>R:1</strong> for rests. Bars (|) are optional.
+              </p>
+              <p class="section-intro notation-hint hint-carnatic">
+                Use swaras <strong>Sa Ri Ga Ma Pa Dha Ni</strong> (S R G M P D N). Example:
+                <strong>S4:1 R4:1 G4:1</strong>. Use <strong>REST:1</strong> for rests.
+              </p>
+              <article class="notebook-cell markdown-cell">
+                <h4>Note format</h4>
+                <p id="note-format">Try: C4:1 D4:1 E4:1 F4:1 | G4:2 R:1 G4:1</p>
+              </article>
+              <article class="notebook-cell code-cell">
+                <div class="cell-top">
+                  <span class="cell-title">Paste your melody</span>
+                </div>
+                <textarea class="cell-editor" id="notes-input" spellcheck="false">C4:1 D4:1 E4:1 F4:1 G4:1 A4:1 B4:1 C5:2</textarea>
+              </article>
+            </div>
+            <div
+              class="studio-panel"
+              data-panel="kuthu"
+              id="studio-kuthu"
+              role="tabpanel"
+              aria-hidden="true"
+            >
+              <p class="section-intro">
+                Turn any melody into a kuthu groove with offbeat thumps, octave lifts, and half-beat
+                pulses.
+              </p>
+              <article class="notebook-cell markdown-cell">
+                <h4>Agentic Kuthu algorithm</h4>
+                <ul class="music-list">
+                  <li>Detect the tonic (most frequent pitch) to anchor bass hits.</li>
+                  <li>Snap each note to a half-beat pulse grid.</li>
+                  <li>Alternate melody notes with tonic/fifth hits on offbeats.</li>
+                  <li>Add octave lifts every four pulses for lift.</li>
+                  <li>Clamp notes to the on-screen keyboard range.</li>
+                </ul>
+              </article>
+              <article class="notebook-cell code-cell">
+                <div class="cell-top">
+                  <span class="cell-title">Generated kuthu notes</span>
+                </div>
+                <textarea
+                  class="cell-editor"
+                  id="kuthu-output"
+                  spellcheck="false"
+                  placeholder="Generate to see your kuthu groove..."
+                ></textarea>
+              </article>
+              <div class="kuthu-actions">
+                <button class="notebook-btn" id="kuthu-generate" type="button">
+                  Generate Kuthu
+                </button>
+                <button class="notebook-btn secondary" id="kuthu-apply" type="button">
+                  Load into Song Notes
+                </button>
+                <button class="notebook-btn secondary" id="kuthu-preset" type="button">
+                  Apply Kuthu Preset
+                </button>
+              </div>
+              <p class="kuthu-meta">Preset: 128 BPM · Saw Lead · Faster fall speed.</p>
+            </div>
           </div>
 
           <div class="notebook-group tempo-group">
@@ -103,6 +170,57 @@
                 <label class="toggle">
                   <input type="checkbox" id="audio-toggle" checked />
                   Audio playback
+                </label>
+                <label>
+                  Sound
+                  <select id="sound-select">
+                    <optgroup label="Keyboard / Piano Family">
+                      <option value="grand-piano" selected>Grand Piano</option>
+                      <option value="bright-piano">Bright Piano</option>
+                      <option value="electric-piano">Electric Piano (Rhodes)</option>
+                      <option value="honky-tonk">Honky-tonk</option>
+                    </optgroup>
+                    <optgroup label="Guitar Sounds">
+                      <option value="acoustic-guitar">Acoustic Guitar (nylon / steel)</option>
+                      <option value="electric-guitar">Electric Guitar (clean)</option>
+                      <option value="distortion-guitar">Distortion Guitar</option>
+                      <option value="bass-guitar">Bass Guitar</option>
+                    </optgroup>
+                    <optgroup label="Wind / Flute Sounds">
+                      <option value="flute">Flute</option>
+                      <option value="recorder">Recorder</option>
+                      <option value="pan-flute">Pan Flute</option>
+                      <option value="oboe">Oboe</option>
+                      <option value="clarinet">Clarinet</option>
+                      <option value="saxophone">Saxophone</option>
+                    </optgroup>
+                    <optgroup label="Strings">
+                      <option value="violin">Violin</option>
+                      <option value="viola">Viola</option>
+                      <option value="cello">Cello</option>
+                      <option value="string-ensemble">String Ensemble</option>
+                      <option value="pizzicato-strings">Pizzicato Strings</option>
+                    </optgroup>
+                    <optgroup label="Brass">
+                      <option value="trumpet">Trumpet</option>
+                      <option value="trombone">Trombone</option>
+                      <option value="french-horn">French Horn</option>
+                      <option value="brass-section">Brass Section</option>
+                    </optgroup>
+                    <optgroup label="Synth / Pad Sounds">
+                      <option value="synth-lead">Synth Lead</option>
+                      <option value="warm-pad">Warm Pad</option>
+                      <option value="choir-pad">Choir Pad</option>
+                      <option value="ambient-pad">Ambient Pad</option>
+                      <option value="saw-lead">Saw Lead</option>
+                    </optgroup>
+                    <optgroup label="Percussion">
+                      <option value="drum-kit">Drum Kit</option>
+                      <option value="tabla">Tabla</option>
+                      <option value="conga">Conga</option>
+                      <option value="electronic-drums">Electronic Drums</option>
+                    </optgroup>
+                  </select>
                 </label>
                 <label>
                   Volume

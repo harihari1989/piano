@@ -2,6 +2,12 @@ const notesInput = document.getElementById("notes-input");
 const playBtn = document.getElementById("play-btn");
 const stopBtn = document.getElementById("stop-btn");
 const sampleBtn = document.getElementById("sample-btn");
+const studioTabButtons = document.querySelectorAll(".studio-tab");
+const studioPanels = document.querySelectorAll(".studio-panel");
+const kuthuOutput = document.getElementById("kuthu-output");
+const kuthuGenerateBtn = document.getElementById("kuthu-generate");
+const kuthuApplyBtn = document.getElementById("kuthu-apply");
+const kuthuPresetBtn = document.getElementById("kuthu-preset");
 const themeButtons = document.querySelectorAll(".mode-btn");
 const playgroundButtons = document.querySelectorAll(".playground-btn");
 const notationButtons = document.querySelectorAll(".notation-btn");
@@ -15,6 +21,7 @@ const fallValue = document.getElementById("fall-value");
 const audioToggle = document.getElementById("audio-toggle");
 const volumeRange = document.getElementById("volume");
 const volumeValue = document.getElementById("volume-value");
+const soundSelect = document.getElementById("sound-select");
 const loopToggle = document.getElementById("loop");
 const mapToggle = document.getElementById("map-toggle");
 const statusEl = document.getElementById("status");
@@ -22,6 +29,312 @@ const fallZone = document.getElementById("fall-zone");
 
 const SAMPLE = "C4:1 D4:1 E4:1 F4:1 G4:1 A4:1 B4:1 C5:2";
 const CARNATIC_SAMPLE = "S4:1 R4:1 G4:1 M4:1 P4:1 D4:1 N4:1 S5:2";
+const KUTHU_PRESET = { tempo: 128, fall: 950, sound: "saw-lead" };
+const KUTHU_PULSE = 0.5;
+const DEFAULT_SOUND = "grand-piano";
+const DEFAULT_ENVELOPE = {
+  attack: 0.01,
+  decay: 0.2,
+  sustain: 0.6,
+  release: 0.2,
+  peak: 0.9,
+};
+const SOUND_PRESETS = {
+  "grand-piano": {
+    envelope: { attack: 0.01, decay: 0.3, sustain: 0.2, release: 0.35, peak: 0.9 },
+    oscillators: [
+      { type: "triangle", gain: 0.6 },
+      { type: "sine", gain: 0.35 },
+      { type: "triangle", gain: 0.12, detune: -6 },
+      { type: "triangle", gain: 0.12, detune: 6 },
+    ],
+    filter: { type: "lowpass", frequency: 8000, Q: 0.8 },
+  },
+  "bright-piano": {
+    envelope: { attack: 0.005, decay: 0.25, sustain: 0.2, release: 0.3, peak: 0.95 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.45 },
+      { type: "triangle", gain: 0.35 },
+      { type: "square", gain: 0.1, detune: 5 },
+    ],
+    filter: { type: "lowpass", frequency: 10000, Q: 0.7 },
+  },
+  "electric-piano": {
+    envelope: { attack: 0.01, decay: 0.4, sustain: 0.4, release: 0.6, peak: 0.85 },
+    oscillators: [
+      { type: "sine", gain: 0.6 },
+      { type: "triangle", gain: 0.35 },
+      { type: "sine", gain: 0.2, detune: -7 },
+      { type: "sine", gain: 0.2, detune: 7 },
+    ],
+    filter: { type: "lowpass", frequency: 6000, Q: 0.9 },
+    tremolo: { rate: 4.5, depth: 0.2 },
+  },
+  "honky-tonk": {
+    envelope: { attack: 0.005, decay: 0.28, sustain: 0.15, release: 0.25, peak: 0.9 },
+    oscillators: [
+      { type: "triangle", gain: 0.5, detune: -18 },
+      { type: "triangle", gain: 0.5, detune: 18 },
+      { type: "sine", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 7500, Q: 0.7 },
+  },
+  "acoustic-guitar": {
+    envelope: { attack: 0.005, decay: 0.45, sustain: 0.05, release: 0.15, peak: 0.9 },
+    oscillators: [
+      { type: "triangle", gain: 0.5 },
+      { type: "sine", gain: 0.25 },
+      { type: "triangle", gain: 0.2, detune: 5 },
+    ],
+    filter: { type: "lowpass", frequency: 4000, Q: 0.8 },
+  },
+  "electric-guitar": {
+    envelope: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 0.25, peak: 0.8 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.45 },
+      { type: "triangle", gain: 0.3 },
+      { type: "square", gain: 0.15, detune: 4 },
+    ],
+    filter: { type: "lowpass", frequency: 5000, Q: 0.9 },
+  },
+  "distortion-guitar": {
+    envelope: { attack: 0.005, decay: 0.2, sustain: 0.5, release: 0.2, peak: 0.8 },
+    oscillators: [
+      { type: "square", gain: 0.55 },
+      { type: "sawtooth", gain: 0.35 },
+    ],
+    filter: { type: "lowpass", frequency: 3500, Q: 1.2 },
+    drive: 0.6,
+  },
+  "bass-guitar": {
+    envelope: { attack: 0.005, decay: 0.25, sustain: 0.6, release: 0.3, peak: 0.85 },
+    oscillators: [
+      { type: "triangle", gain: 0.6 },
+      { type: "sine", gain: 0.35 },
+      { type: "square", gain: 0.12, octave: -1 },
+    ],
+    filter: { type: "lowpass", frequency: 1200, Q: 0.8 },
+  },
+  flute: {
+    envelope: { attack: 0.08, decay: 0.1, sustain: 0.85, release: 0.25, peak: 0.7 },
+    oscillators: [
+      { type: "sine", gain: 0.8 },
+      { type: "triangle", gain: 0.15 },
+    ],
+    filter: { type: "lowpass", frequency: 5200, Q: 0.7 },
+    vibrato: { rate: 5.2, depth: 12 },
+  },
+  recorder: {
+    envelope: { attack: 0.05, decay: 0.1, sustain: 0.75, release: 0.2, peak: 0.65 },
+    oscillators: [
+      { type: "triangle", gain: 0.6 },
+      { type: "sine", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 4200, Q: 0.7 },
+    vibrato: { rate: 5, depth: 8 },
+  },
+  "pan-flute": {
+    envelope: { attack: 0.07, decay: 0.1, sustain: 0.8, release: 0.3, peak: 0.7 },
+    oscillators: [
+      { type: "sine", gain: 0.7 },
+      { type: "triangle", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 4800, Q: 0.7 },
+    vibrato: { rate: 4.2, depth: 10 },
+  },
+  oboe: {
+    envelope: { attack: 0.03, decay: 0.2, sustain: 0.6, release: 0.22, peak: 0.7 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.5 },
+      { type: "square", gain: 0.15 },
+    ],
+    filter: { type: "lowpass", frequency: 3800, Q: 1.1 },
+  },
+  clarinet: {
+    envelope: { attack: 0.03, decay: 0.2, sustain: 0.6, release: 0.22, peak: 0.7 },
+    oscillators: [
+      { type: "square", gain: 0.55 },
+      { type: "triangle", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 3200, Q: 1.0 },
+  },
+  saxophone: {
+    envelope: { attack: 0.02, decay: 0.2, sustain: 0.65, release: 0.25, peak: 0.75 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.5 },
+      { type: "square", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 4200, Q: 1.0 },
+    drive: 0.2,
+  },
+  violin: {
+    envelope: { attack: 0.06, decay: 0.2, sustain: 0.75, release: 0.35, peak: 0.75 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.45 },
+      { type: "triangle", gain: 0.25 },
+      { type: "sawtooth", gain: 0.2, detune: 4 },
+    ],
+    filter: { type: "lowpass", frequency: 6000, Q: 0.8 },
+    vibrato: { rate: 5.3, depth: 14 },
+  },
+  viola: {
+    envelope: { attack: 0.07, decay: 0.22, sustain: 0.7, release: 0.35, peak: 0.7 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.45 },
+      { type: "triangle", gain: 0.25 },
+    ],
+    filter: { type: "lowpass", frequency: 5000, Q: 0.85 },
+    vibrato: { rate: 5.1, depth: 12 },
+  },
+  cello: {
+    envelope: { attack: 0.08, decay: 0.25, sustain: 0.7, release: 0.4, peak: 0.7 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.4 },
+      { type: "triangle", gain: 0.3 },
+      { type: "sine", gain: 0.2, octave: -1 },
+    ],
+    filter: { type: "lowpass", frequency: 3500, Q: 0.9 },
+    vibrato: { rate: 4.8, depth: 10 },
+  },
+  "string-ensemble": {
+    envelope: { attack: 0.12, decay: 0.3, sustain: 0.8, release: 0.5, peak: 0.7 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.35 },
+      { type: "sawtooth", gain: 0.35, detune: -6 },
+      { type: "sawtooth", gain: 0.35, detune: 6 },
+      { type: "triangle", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 4500, Q: 0.8 },
+    vibrato: { rate: 5, depth: 8 },
+  },
+  "pizzicato-strings": {
+    envelope: { attack: 0.005, decay: 0.2, sustain: 0.1, release: 0.12, peak: 0.85 },
+    oscillators: [
+      { type: "triangle", gain: 0.5 },
+      { type: "sine", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 4200, Q: 0.8 },
+  },
+  trumpet: {
+    envelope: { attack: 0.02, decay: 0.15, sustain: 0.65, release: 0.2, peak: 0.8 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.5 },
+      { type: "square", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 5000, Q: 0.9 },
+    vibrato: { rate: 5, depth: 8 },
+  },
+  trombone: {
+    envelope: { attack: 0.04, decay: 0.2, sustain: 0.65, release: 0.25, peak: 0.75 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.5 },
+      { type: "triangle", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 3500, Q: 0.9 },
+    vibrato: { rate: 4.5, depth: 6 },
+  },
+  "french-horn": {
+    envelope: { attack: 0.06, decay: 0.25, sustain: 0.6, release: 0.3, peak: 0.7 },
+    oscillators: [
+      { type: "triangle", gain: 0.45 },
+      { type: "sawtooth", gain: 0.25 },
+    ],
+    filter: { type: "lowpass", frequency: 2600, Q: 0.9 },
+    vibrato: { rate: 4.2, depth: 6 },
+  },
+  "brass-section": {
+    envelope: { attack: 0.05, decay: 0.2, sustain: 0.7, release: 0.3, peak: 0.75 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.4 },
+      { type: "sawtooth", gain: 0.35, detune: -5 },
+      { type: "sawtooth", gain: 0.35, detune: 5 },
+      { type: "square", gain: 0.15 },
+    ],
+    filter: { type: "lowpass", frequency: 4800, Q: 0.9 },
+  },
+  "synth-lead": {
+    envelope: { attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.18, peak: 0.85 },
+    oscillators: [
+      { type: "square", gain: 0.45 },
+      { type: "sawtooth", gain: 0.35 },
+    ],
+    filter: { type: "lowpass", frequency: 8000, Q: 0.8 },
+    vibrato: { rate: 5, depth: 5 },
+  },
+  "warm-pad": {
+    envelope: { attack: 0.4, decay: 0.3, sustain: 0.85, release: 0.6, peak: 0.6 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.35, detune: -8 },
+      { type: "sawtooth", gain: 0.35, detune: 8 },
+      { type: "triangle", gain: 0.2 },
+    ],
+    filter: { type: "lowpass", frequency: 2200, Q: 0.8 },
+  },
+  "choir-pad": {
+    envelope: { attack: 0.35, decay: 0.3, sustain: 0.8, release: 0.7, peak: 0.6 },
+    oscillators: [
+      { type: "triangle", gain: 0.4 },
+      { type: "sine", gain: 0.3 },
+      { type: "triangle", gain: 0.25, detune: 3 },
+    ],
+    filter: { type: "lowpass", frequency: 2000, Q: 0.8 },
+    vibrato: { rate: 4.2, depth: 6 },
+  },
+  "ambient-pad": {
+    envelope: { attack: 0.6, decay: 0.4, sustain: 0.9, release: 1.0, peak: 0.55 },
+    oscillators: [
+      { type: "sine", gain: 0.35 },
+      { type: "sawtooth", gain: 0.25, detune: -12 },
+      { type: "sawtooth", gain: 0.25, detune: 12 },
+    ],
+    filter: { type: "lowpass", frequency: 1800, Q: 0.9 },
+  },
+  "saw-lead": {
+    envelope: { attack: 0.01, decay: 0.1, sustain: 0.65, release: 0.18, peak: 0.85 },
+    oscillators: [
+      { type: "sawtooth", gain: 0.7 },
+      { type: "sawtooth", gain: 0.25, detune: 5 },
+    ],
+    filter: { type: "lowpass", frequency: 9500, Q: 0.7 },
+  },
+  "drum-kit": {
+    envelope: { attack: 0.001, decay: 0.12, sustain: 0, release: 0.08, peak: 0.9 },
+    oscillators: [
+      { type: "sine", gain: 0.4, octave: -1 },
+      { type: "square", gain: 0.15 },
+    ],
+    noise: { gain: 0.3, duration: 0.2, filter: { type: "highpass", frequency: 700, Q: 0.7 } },
+  },
+  tabla: {
+    envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.12, peak: 0.8 },
+    oscillators: [
+      { type: "sine", gain: 0.5 },
+      { type: "triangle", gain: 0.15 },
+    ],
+    noise: { gain: 0.25, duration: 0.25, filter: { type: "bandpass", frequency: 800, Q: 1.4 } },
+  },
+  conga: {
+    envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.1, peak: 0.8 },
+    oscillators: [
+      { type: "triangle", gain: 0.4 },
+      { type: "sine", gain: 0.15, octave: -1 },
+    ],
+    noise: { gain: 0.2, duration: 0.2, filter: { type: "bandpass", frequency: 500, Q: 1.2 } },
+  },
+  "electronic-drums": {
+    envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.08, peak: 0.85 },
+    oscillators: [
+      { type: "square", gain: 0.45 },
+      { type: "sawtooth", gain: 0.2, octave: -1 },
+    ],
+    noise: { gain: 0.2, duration: 0.15, filter: { type: "highpass", frequency: 1200, Q: 0.7 } },
+    drive: 0.4,
+  },
+};
+const DEFAULT_OSCILLATORS = [
+  { type: "triangle", gain: 0.6 },
+  { type: "sine", gain: 0.25 },
+];
 
 const state = {
   playing: false,
@@ -45,6 +358,8 @@ const audioState = {
   volume: Number(volumeRange.value) / 100,
   voices: new Set(),
   manualVoices: new Map(),
+  sound: DEFAULT_SOUND,
+  noiseBuffer: null,
 };
 
 const keyMap = new Map();
@@ -118,6 +433,20 @@ function updateKeyboardRange(range) {
       keyHint.textContent += " Swaras map to C major (Sa=C, Ri=D, Ga=E, Ma=F, Pa=G, Dha=A, Ni=B).";
     }
   }
+}
+
+function setStudioTab(tabName) {
+  if (!studioTabButtons.length || !studioPanels.length) return;
+  studioTabButtons.forEach((button) => {
+    const isActive = button.dataset.tab === tabName;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+  studioPanels.forEach((panel) => {
+    const isActive = panel.dataset.panel === tabName;
+    panel.classList.toggle("is-active", isActive);
+    panel.setAttribute("aria-hidden", String(!isActive));
+  });
 }
 
 const CARNATIC_MAP = {
@@ -206,6 +535,28 @@ const NOTE_OFFSETS = {
   "A#": 10,
   B: 11,
 };
+const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+function noteToMidi(note) {
+  const match = note.match(/^([A-G])(#?)(\d)$/);
+  if (!match) return null;
+  const key = `${match[1]}${match[2]}`;
+  const offset = NOTE_OFFSETS[key];
+  if (offset === undefined) return null;
+  const octave = Number(match[3]);
+  if (!Number.isFinite(octave)) return null;
+  return (octave + 1) * 12 + offset;
+}
+
+function midiToNote(midi) {
+  if (!Number.isFinite(midi)) return null;
+  const rounded = Math.round(midi);
+  const octave = Math.floor(rounded / 12) - 1;
+  const pitch = ((rounded % 12) + 12) % 12;
+  const name = NOTE_NAMES[pitch];
+  if (!name) return null;
+  return `${name}${octave}`;
+}
 
 function noteToFrequency(note) {
   const match = note.match(/^([A-G])(#?)(\d)$/);
@@ -215,6 +566,304 @@ function noteToFrequency(note) {
   if (!Object.prototype.hasOwnProperty.call(NOTE_OFFSETS, key)) return null;
   const midi = (octave + 1) * 12 + NOTE_OFFSETS[key];
   return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function getPitchClass(note) {
+  const match = note.match(/^([A-G])(#?)/);
+  return match ? `${match[1]}${match[2]}` : null;
+}
+
+function getOctave(note) {
+  const match = note.match(/(\d)$/);
+  return match ? Number(match[1]) : null;
+}
+
+function transposeNote(note, semitones) {
+  const midi = noteToMidi(note);
+  if (midi === null) return null;
+  return midiToNote(midi + semitones);
+}
+
+function transposePitchClass(pitchClass, semitones) {
+  const baseMidi = noteToMidi(`${pitchClass}4`);
+  if (baseMidi === null) return pitchClass;
+  const transposed = midiToNote(baseMidi + semitones);
+  return transposed ? getPitchClass(transposed) : pitchClass;
+}
+
+function getKeyboardMidiRange() {
+  let min = Infinity;
+  let max = -Infinity;
+  keyMap.forEach((_el, note) => {
+    const midi = noteToMidi(note);
+    if (midi === null) return;
+    min = Math.min(min, midi);
+    max = Math.max(max, midi);
+  });
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return null;
+  return { min, max };
+}
+
+function clampNoteToRange(note, range) {
+  if (!range) return note;
+  const midi = noteToMidi(note);
+  if (midi === null) return note;
+  const clamped = Math.min(range.max, Math.max(range.min, midi));
+  return midiToNote(clamped) || note;
+}
+
+function getSoundPreset() {
+  return SOUND_PRESETS[audioState.sound] || SOUND_PRESETS[DEFAULT_SOUND];
+}
+
+function buildNoiseBuffer() {
+  if (!audioState.ctx) return null;
+  const ctx = audioState.ctx;
+  const buffer = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  return buffer;
+}
+
+function getNoiseBuffer() {
+  if (!audioState.noiseBuffer) {
+    audioState.noiseBuffer = buildNoiseBuffer();
+  }
+  return audioState.noiseBuffer;
+}
+
+function makeDistortionCurve(amount) {
+  const k = Math.max(0, Math.min(amount, 1)) * 50;
+  const n = 44100;
+  const curve = new Float32Array(n);
+  const deg = Math.PI / 180;
+  for (let i = 0; i < n; i += 1) {
+    const x = (i * 2) / n - 1;
+    curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+  }
+  return curve;
+}
+
+function applyEnvelope(gainParam, env, now, stopAt) {
+  const attack = Math.max(0.001, env.attack ?? DEFAULT_ENVELOPE.attack);
+  const decay = Math.max(0, env.decay ?? DEFAULT_ENVELOPE.decay);
+  const sustain = Math.max(0.0001, env.sustain ?? DEFAULT_ENVELOPE.sustain);
+  const release = Math.max(0.02, env.release ?? DEFAULT_ENVELOPE.release);
+  const peak = Math.max(0.05, env.peak ?? DEFAULT_ENVELOPE.peak);
+
+  gainParam.setValueAtTime(0.0001, now);
+  gainParam.linearRampToValueAtTime(peak, now + attack);
+  gainParam.linearRampToValueAtTime(peak * sustain, now + attack + decay);
+
+  if (typeof stopAt === "number") {
+    gainParam.setValueAtTime(peak * sustain, stopAt);
+    gainParam.linearRampToValueAtTime(0.0001, stopAt + release);
+  }
+}
+
+function stopVoiceNodes(voice, stopAt) {
+  if (!voice) return;
+  voice.oscillators.forEach((osc) => {
+    try {
+      osc.stop(stopAt);
+    } catch (error) {
+      // Ignore stale nodes.
+    }
+  });
+  voice.noiseSources?.forEach((source) => {
+    try {
+      source.stop(stopAt);
+    } catch (error) {
+      // Ignore stale nodes.
+    }
+  });
+  voice.lfos?.forEach((osc) => {
+    try {
+      osc.stop(stopAt);
+    } catch (error) {
+      // Ignore stale nodes.
+    }
+  });
+}
+
+function scheduleVoiceCleanup(voice, stopAt) {
+  if (!audioState.ctx || !voice || !stopAt) return;
+  const delayMs = Math.max(0, (stopAt - audioState.ctx.currentTime) * 1000 + 60);
+  window.setTimeout(() => {
+    audioState.voices.delete(voice);
+  }, delayMs);
+}
+
+function createVoice(frequency, durationMs, isManual) {
+  if (!audioState.ctx) return null;
+  const preset = getSoundPreset();
+  const env = { ...DEFAULT_ENVELOPE, ...(preset.envelope || {}) };
+  const now = audioState.ctx.currentTime;
+
+  const mix = audioState.ctx.createGain();
+  mix.gain.setValueAtTime(1, now);
+
+  let lastNode = mix;
+  if (preset.drive) {
+    const drive = audioState.ctx.createWaveShaper();
+    drive.curve = makeDistortionCurve(preset.drive);
+    drive.oversample = "4x";
+    lastNode.connect(drive);
+    lastNode = drive;
+  }
+
+  if (preset.filter) {
+    const filter = audioState.ctx.createBiquadFilter();
+    filter.type = preset.filter.type || "lowpass";
+    filter.frequency.setValueAtTime(preset.filter.frequency || 8000, now);
+    filter.Q.setValueAtTime(preset.filter.Q ?? 0.7, now);
+    if (typeof preset.filter.gain === "number") {
+      filter.gain.setValueAtTime(preset.filter.gain, now);
+    }
+    lastNode.connect(filter);
+    lastNode = filter;
+  }
+
+  const output = audioState.ctx.createGain();
+  output.gain.setValueAtTime(0.0001, now);
+  lastNode.connect(output);
+
+  let finalNode = output;
+  const lfos = [];
+
+  if (preset.tremolo) {
+    const tremoloGain = audioState.ctx.createGain();
+    const depth = Math.max(0, Math.min(preset.tremolo.depth ?? 0.2, 0.95));
+    tremoloGain.gain.setValueAtTime(1 - depth, now);
+    output.connect(tremoloGain);
+    finalNode = tremoloGain;
+
+    const tremoloOsc = audioState.ctx.createOscillator();
+    const tremoloAmp = audioState.ctx.createGain();
+    tremoloOsc.type = "sine";
+    tremoloOsc.frequency.setValueAtTime(preset.tremolo.rate ?? 4, now);
+    tremoloAmp.gain.setValueAtTime(depth, now);
+    tremoloOsc.connect(tremoloAmp);
+    tremoloAmp.connect(tremoloGain.gain);
+    tremoloOsc.start(now);
+    lfos.push(tremoloOsc);
+  }
+
+  finalNode.connect(audioState.master);
+
+  const voice = {
+    output,
+    oscillators: [],
+    noiseSources: [],
+    lfos,
+    envelope: env,
+    sustainLevel: env.peak * env.sustain,
+  };
+
+  const oscillatorDefs =
+    preset.oscillators && preset.oscillators.length
+      ? preset.oscillators
+      : DEFAULT_OSCILLATORS;
+
+  oscillatorDefs.forEach((oscDef) => {
+    const osc = audioState.ctx.createOscillator();
+    const gain = audioState.ctx.createGain();
+    const octave = oscDef.octave || 0;
+    osc.type = oscDef.type || "triangle";
+    osc.frequency.setValueAtTime(
+      frequency * Math.pow(2, octave),
+      now
+    );
+    if (oscDef.detune) {
+      osc.detune.setValueAtTime(oscDef.detune, now);
+    }
+    gain.gain.setValueAtTime(oscDef.gain ?? 0.4, now);
+    osc.connect(gain);
+    gain.connect(mix);
+    osc.start(now);
+    voice.oscillators.push(osc);
+  });
+
+  if (preset.vibrato) {
+    const vibrato = audioState.ctx.createOscillator();
+    const vibratoGain = audioState.ctx.createGain();
+    vibrato.type = "sine";
+    vibrato.frequency.setValueAtTime(preset.vibrato.rate ?? 5, now);
+    vibratoGain.gain.setValueAtTime(preset.vibrato.depth ?? 6, now);
+    vibrato.connect(vibratoGain);
+    voice.oscillators.forEach((osc) => vibratoGain.connect(osc.detune));
+    vibrato.start(now);
+    voice.lfos.push(vibrato);
+  }
+
+  if (preset.noise) {
+    const noiseBuffer = getNoiseBuffer();
+    if (noiseBuffer) {
+      const source = audioState.ctx.createBufferSource();
+      source.buffer = noiseBuffer;
+      source.loop = false;
+
+      const noiseGain = audioState.ctx.createGain();
+      noiseGain.gain.setValueAtTime(preset.noise.gain ?? 0.2, now);
+
+      if (preset.noise.filter) {
+        const noiseFilter = audioState.ctx.createBiquadFilter();
+        noiseFilter.type = preset.noise.filter.type || "highpass";
+        noiseFilter.frequency.setValueAtTime(
+          preset.noise.filter.frequency || 1000,
+          now
+        );
+        noiseFilter.Q.setValueAtTime(preset.noise.filter.Q ?? 0.7, now);
+        source.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+      } else {
+        source.connect(noiseGain);
+      }
+
+      noiseGain.connect(mix);
+      source.start(now);
+      source.stop(now + (preset.noise.duration ?? 0.2));
+      voice.noiseSources.push(source);
+    }
+  }
+
+  const stopAt =
+    !isManual && typeof durationMs === "number"
+      ? now + durationMs / 1000
+      : null;
+  applyEnvelope(output.gain, env, now, stopAt);
+
+  if (stopAt) {
+    const stopTime = stopAt + env.release + 0.05;
+    stopVoiceNodes(voice, stopTime);
+    scheduleVoiceCleanup(voice, stopTime);
+  }
+
+  return voice;
+}
+
+function releaseVoice(voice) {
+  if (!voice || !audioState.ctx) return;
+  const now = audioState.ctx.currentTime;
+  const release = Math.max(0.02, voice.envelope.release ?? DEFAULT_ENVELOPE.release);
+  voice.output.gain.cancelScheduledValues(now);
+  voice.output.gain.setValueAtTime(
+    Number.isFinite(voice.sustainLevel) ? voice.sustainLevel : voice.output.gain.value,
+    now
+  );
+  voice.output.gain.linearRampToValueAtTime(0.0001, now + release);
+  stopVoiceNodes(voice, now + release + 0.05);
+}
+
+function stopVoiceImmediate(voice) {
+  if (!voice || !audioState.ctx) return;
+  const now = audioState.ctx.currentTime;
+  voice.output.gain.cancelScheduledValues(now);
+  voice.output.gain.setValueAtTime(voice.output.gain.value, now);
+  voice.output.gain.linearRampToValueAtTime(0.0001, now + 0.05);
+  stopVoiceNodes(voice, now + 0.08);
 }
 
 function parseBeats(value) {
@@ -411,6 +1060,153 @@ function parseNotes(raw) {
   return { events, ignored };
 }
 
+function gcd(a, b) {
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+  while (y) {
+    const temp = y;
+    y = x % y;
+    x = temp;
+  }
+  return x || 1;
+}
+
+function formatBeats(value) {
+  if (!Number.isFinite(value)) return "1";
+  const rounded = Math.round(value * 8) / 8;
+  const numerator = Math.round(rounded * 8);
+  const denominator = 8;
+  const divisor = gcd(numerator, denominator);
+  const simplifiedNum = numerator / divisor;
+  const simplifiedDen = denominator / divisor;
+  if (simplifiedDen === 1) return `${simplifiedNum}`;
+  return `${simplifiedNum}/${simplifiedDen}`;
+}
+
+function getMostCommonPitchClass(pitchClasses) {
+  const counts = new Map();
+  pitchClasses.forEach((pitch) => {
+    counts.set(pitch, (counts.get(pitch) || 0) + 1);
+  });
+  let best = null;
+  let bestCount = -1;
+  counts.forEach((count, pitch) => {
+    if (count > bestCount) {
+      best = pitch;
+      bestCount = count;
+    }
+  });
+  return best;
+}
+
+function buildKuthuGroove(events) {
+  const melodic = events.filter((event) => !event.rest);
+  if (!melodic.length) return null;
+
+  const pitchClasses = melodic
+    .map((event) => getPitchClass(event.note))
+    .filter(Boolean);
+  const tonic = getMostCommonPitchClass(pitchClasses) || getPitchClass(melodic[0].note);
+  if (!tonic) return null;
+  const octaves = melodic
+    .map((event) => getOctave(event.note))
+    .filter((value) => Number.isFinite(value));
+  const minOctave = octaves.length ? Math.min(...octaves) : 4;
+  const bassOctave = Math.min(4, Math.max(3, minOctave - 1));
+  const keyboardRange = getKeyboardMidiRange();
+  const bassNote = clampNoteToRange(`${tonic}${bassOctave}`, keyboardRange);
+  const fifthPitch = transposePitchClass(tonic, 7);
+  const fifthNote = clampNoteToRange(`${fifthPitch}${bassOctave}`, keyboardRange);
+
+  const pulses = [
+    { note: bassNote, beats: KUTHU_PULSE },
+    { note: fifthNote, beats: KUTHU_PULSE },
+  ];
+
+  events.forEach((event) => {
+    const subdivisions = Math.max(1, Math.round(event.beats / KUTHU_PULSE));
+    const pulseBeats = event.beats / subdivisions;
+
+    for (let i = 0; i < subdivisions; i += 1) {
+      const isDownbeat = i % 2 === 0;
+      if (event.rest) {
+        if (isDownbeat) {
+          pulses.push({ rest: true, beats: pulseBeats });
+        } else {
+          pulses.push({ note: bassNote, beats: pulseBeats });
+        }
+        continue;
+      }
+
+      let pulseNote;
+      if (isDownbeat) {
+        pulseNote = event.note;
+      } else if (i % 4 === 1) {
+        pulseNote = bassNote;
+      } else {
+        pulseNote = fifthNote;
+      }
+
+      if (i % 4 === 2) {
+        const lift = transposeNote(event.note, 12);
+        if (lift) {
+          pulseNote = clampNoteToRange(lift, keyboardRange);
+        }
+      }
+
+      pulses.push({
+        note: clampNoteToRange(pulseNote, keyboardRange),
+        beats: pulseBeats,
+      });
+    }
+  });
+
+  const endingNote = clampNoteToRange(
+    `${tonic}${Math.min(5, bassOctave + 2)}`,
+    keyboardRange
+  );
+  pulses.push({ note: endingNote, beats: 1 });
+  return pulses;
+}
+
+function formatKuthuOutput(events) {
+  const restToken = state.notationMode === "carnatic" ? "REST" : "R";
+  return events
+    .map((event) => {
+      const beat = formatBeats(event.beats);
+      if (event.rest) return `${restToken}:${beat}`;
+      return `${getDisplayName(event.note)}:${beat}`;
+    })
+    .join(" ");
+}
+
+function generateKuthuFromInput() {
+  if (!kuthuOutput) return null;
+  const normalized = normalizeInputForPlayback(notesInput.value);
+  if (normalized.changed) {
+    notesInput.value = normalized.value;
+  }
+  const { events, ignored } = parseNotes(notesInput.value);
+  const playable = events.filter((event) => !event.rest);
+  if (!playable.length) {
+    setStatus("Add some notes before generating a kuthu groove.", true);
+    return null;
+  }
+
+  const kuthuEvents = buildKuthuGroove(events);
+  if (!kuthuEvents) {
+    setStatus("Unable to build a kuthu groove from this input.", true);
+    return null;
+  }
+
+  const output = formatKuthuOutput(kuthuEvents);
+  kuthuOutput.value = output;
+
+  const ignoredText = ignored.length ? `Ignored: ${ignored.join(", ")}. ` : "";
+  setStatus(`${ignoredText}Agentic Kuthu ready with ${kuthuEvents.length} pulses.`);
+  return output;
+}
+
 function ensureAudio() {
   if (!audioState.enabled) return;
   if (!audioState.ctx) {
@@ -419,6 +1215,7 @@ function ensureAudio() {
     audioState.master = audioState.ctx.createGain();
     audioState.master.gain.value = audioState.volume;
     audioState.master.connect(audioState.ctx.destination);
+    audioState.noiseBuffer = null;
   }
   if (audioState.ctx.state === "suspended") {
     audioState.ctx.resume();
@@ -460,16 +1257,8 @@ function stopAllVoices() {
     audioState.voices.clear();
     return;
   }
-  const now = audioState.ctx.currentTime;
   audioState.voices.forEach((voice) => {
-    try {
-      voice.gain.gain.cancelScheduledValues(now);
-      voice.gain.gain.setValueAtTime(voice.gain.gain.value, now);
-      voice.gain.gain.linearRampToValueAtTime(0.0001, now + 0.05);
-      voice.osc.stop(now + 0.06);
-    } catch (error) {
-      // Ignore stale nodes.
-    }
+    stopVoiceImmediate(voice);
   });
   audioState.voices.clear();
 }
@@ -479,16 +1268,8 @@ function stopManualVoices() {
     audioState.manualVoices.clear();
     return;
   }
-  const now = audioState.ctx.currentTime;
   audioState.manualVoices.forEach((voice) => {
-    try {
-      voice.gain.gain.cancelScheduledValues(now);
-      voice.gain.gain.setValueAtTime(voice.gain.gain.value, now);
-      voice.gain.gain.linearRampToValueAtTime(0.0001, now + 0.05);
-      voice.osc.stop(now + 0.06);
-    } catch (error) {
-      // Ignore stale nodes.
-    }
+    stopVoiceImmediate(voice);
   });
   audioState.manualVoices.clear();
 }
@@ -499,32 +1280,9 @@ function startVoice(note) {
   if (!audioState.ctx) return;
   const frequency = noteToFrequency(note.note);
   if (!frequency) return;
-
-  const ctx = audioState.ctx;
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  osc.type = "triangle";
-  osc.frequency.setValueAtTime(frequency, now);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.35, now + 0.02);
-  gain.gain.linearRampToValueAtTime(0.25, now + 0.08);
-
-  osc.connect(gain);
-  gain.connect(audioState.master);
-
-  const stopAt = now + note.durationMs / 1000;
-  gain.gain.setValueAtTime(gain.gain.value, stopAt);
-  gain.gain.linearRampToValueAtTime(0.0001, stopAt + 0.08);
-  osc.start(now);
-  osc.stop(stopAt + 0.1);
-
-  const voice = { osc, gain };
+  const voice = createVoice(frequency, note.durationMs, false);
+  if (!voice) return;
   audioState.voices.add(voice);
-  osc.addEventListener("ended", () => {
-    audioState.voices.delete(voice);
-  });
   note.voice = voice;
 }
 
@@ -535,33 +1293,15 @@ function startManualVoice(noteName) {
   if (audioState.manualVoices.has(noteName)) return;
   const frequency = noteToFrequency(noteName);
   if (!frequency) return;
-
-  const ctx = audioState.ctx;
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  osc.type = "triangle";
-  osc.frequency.setValueAtTime(frequency, now);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.28, now + 0.02);
-  gain.gain.linearRampToValueAtTime(0.22, now + 0.08);
-
-  osc.connect(gain);
-  gain.connect(audioState.master);
-  osc.start(now);
-
-  audioState.manualVoices.set(noteName, { osc, gain });
+  const voice = createVoice(frequency, null, true);
+  if (!voice) return;
+  audioState.manualVoices.set(noteName, voice);
 }
 
 function stopManualVoice(noteName) {
   const voice = audioState.manualVoices.get(noteName);
   if (!voice || !audioState.ctx) return;
-  const now = audioState.ctx.currentTime;
-  voice.gain.gain.cancelScheduledValues(now);
-  voice.gain.gain.setValueAtTime(voice.gain.gain.value, now);
-  voice.gain.gain.linearRampToValueAtTime(0.0001, now + 0.06);
-  voice.osc.stop(now + 0.07);
+  releaseVoice(voice);
   audioState.manualVoices.delete(noteName);
 }
 
@@ -758,10 +1498,57 @@ updateKeyboardRange(state.keyboardRange);
 tempoValue.textContent = tempoRange.value;
 fallValue.textContent = `${fallRange.value}ms`;
 volumeValue.textContent = `${volumeRange.value}%`;
+if (soundSelect) {
+  audioState.sound = soundSelect.value || DEFAULT_SOUND;
+}
+
+if (studioTabButtons.length) {
+  const initialTab =
+    Array.from(studioTabButtons).find((button) => button.classList.contains("is-active"))
+      ?.dataset.tab || "notes";
+  setStudioTab(initialTab);
+}
 
 mapToggle.addEventListener("change", () => {
   document.body.classList.toggle("show-map", mapToggle.checked);
 });
+
+studioTabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const tab = button.dataset.tab || "notes";
+    setStudioTab(tab);
+  });
+});
+
+if (kuthuGenerateBtn) {
+  kuthuGenerateBtn.addEventListener("click", () => {
+    generateKuthuFromInput();
+  });
+}
+
+if (kuthuApplyBtn) {
+  kuthuApplyBtn.addEventListener("click", () => {
+    const output = kuthuOutput?.value.trim() || generateKuthuFromInput();
+    if (!output) return;
+    notesInput.value = output;
+    setStudioTab("notes");
+    setStatus("Kuthu groove loaded into Song Notes.");
+  });
+}
+
+if (kuthuPresetBtn) {
+  kuthuPresetBtn.addEventListener("click", () => {
+    tempoRange.value = KUTHU_PRESET.tempo;
+    tempoRange.dispatchEvent(new Event("input"));
+    fallRange.value = KUTHU_PRESET.fall;
+    fallRange.dispatchEvent(new Event("input"));
+    if (soundSelect) {
+      soundSelect.value = KUTHU_PRESET.sound;
+      soundSelect.dispatchEvent(new Event("change"));
+    }
+    setStatus("Kuthu preset applied.");
+  });
+}
 
 rangeButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -801,6 +1588,18 @@ notationButtons.forEach((button) => {
     );
   });
 });
+
+if (soundSelect) {
+  soundSelect.addEventListener("change", () => {
+    audioState.sound = soundSelect.value || DEFAULT_SOUND;
+    const label =
+      soundSelect.options[soundSelect.selectedIndex]?.text || "Sound";
+    setStatus(`Sound set to ${label}.`);
+    if (state.playing) {
+      play();
+    }
+  });
+}
 
 document.querySelectorAll(".key[data-note]").forEach((keyEl) => {
   const noteName = keyEl.dataset.note;

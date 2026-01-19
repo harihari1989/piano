@@ -330,12 +330,19 @@ body[data-notation="carnatic"] .notation-hint.hint-carnatic {
   flex-wrap: wrap;
 }
 
+.studio-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .notation-tabs {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
+.studio-tab,
 .notation-btn,
 .range-btn {
   border: 1px solid transparent;
@@ -348,15 +355,26 @@ body[data-notation="carnatic"] .notation-hint.hint-carnatic {
   transition: all 0.2s ease;
 }
 
+.studio-tab:hover,
 .notation-btn:hover,
 .range-btn:hover {
   border-color: var(--accent-primary);
 }
 
+.studio-tab.is-active,
 .notation-btn.is-active,
 .range-btn.is-active {
   background: rgba(155, 135, 255, 0.25);
   border-color: var(--accent-primary);
+}
+
+.studio-panel {
+  display: none;
+}
+
+.studio-panel.is-active {
+  display: grid;
+  gap: 1rem;
 }
 
 .notebook-cell {
@@ -365,6 +383,18 @@ body[data-notation="carnatic"] .notation-hint.hint-carnatic {
   border-radius: var(--radius);
   padding: 0.9rem 1rem;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.kuthu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.kuthu-meta {
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
 
 .markdown-cell {
@@ -424,6 +454,18 @@ body[data-notation="carnatic"] .notation-hint.hint-carnatic {
   flex: 1;
   cursor: pointer;
   accent-color: var(--accent-primary);
+}
+
+.controls select {
+  flex: 1;
+  min-width: 220px;
+  background: rgba(13, 15, 20, 0.75);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
 }
 
 .controls input[type="checkbox"] {

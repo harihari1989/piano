@@ -4,6 +4,7 @@ A single-page piano practice lab with falling notes, chord/scale drills, and a g
 
 ## Features
 - Falling-note “song studio” with play/stop, tempo, fall speed, loop, and volume controls.
+- Instrument palette with pianos, guitars, winds, strings, brass, synths, and percussion.
 - Western note input (C4, F#4, Bb3) and Carnatic (Sargam) input (S R G M P D N).
 - Interactive keyboard with mouse/touch and computer keyboard mapping.
 - Built-in chord/scale playground and step-by-step lesson drills.

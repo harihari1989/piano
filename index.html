@@ -252,47 +252,51 @@
             <h3>Virtual Piano + Falling Notes</h3>
             <article class="notebook-cell">
               <div class="lane" id="lane">
-                <div class="fall-zone" id="fall-zone"></div>
-                <div class="keyboard" id="keyboard">
-                  <div class="white-keys">
-                    <div class="key white" data-note="C3"><span>C3</span></div>
-                    <div class="key white" data-note="D3"><span>D3</span></div>
-                    <div class="key white" data-note="E3"><span>E3</span></div>
-                    <div class="key white" data-note="F3"><span>F3</span></div>
-                    <div class="key white" data-note="G3"><span>G3</span></div>
-                    <div class="key white" data-note="A3"><span>A3</span></div>
-                    <div class="key white" data-note="B3"><span>B3</span></div>
-                    <div class="key white" data-note="C4"><span>C4</span></div>
-                    <div class="key white" data-note="D4"><span>D4</span></div>
-                    <div class="key white" data-note="E4"><span>E4</span></div>
-                    <div class="key white" data-note="F4"><span>F4</span></div>
-                    <div class="key white" data-note="G4"><span>G4</span></div>
-                    <div class="key white" data-note="A4"><span>A4</span></div>
-                    <div class="key white" data-note="B4"><span>B4</span></div>
-                    <div class="key white" data-note="C5"><span>C5</span></div>
-                    <div class="key white" data-note="D5"><span>D5</span></div>
-                    <div class="key white" data-note="E5"><span>E5</span></div>
-                    <div class="key white" data-note="F5"><span>F5</span></div>
-                    <div class="key white" data-note="G5"><span>G5</span></div>
-                    <div class="key white" data-note="A5"><span>A5</span></div>
-                    <div class="key white" data-note="B5"><span>B5</span></div>
-                  </div>
-                  <div class="black-keys">
-                    <div class="key black" data-note="C#3" style="--pos: 0"><span>C#3</span></div>
-                    <div class="key black" data-note="D#3" style="--pos: 1"><span>D#3</span></div>
-                    <div class="key black" data-note="F#3" style="--pos: 3"><span>F#3</span></div>
-                    <div class="key black" data-note="G#3" style="--pos: 4"><span>G#3</span></div>
-                    <div class="key black" data-note="A#3" style="--pos: 5"><span>A#3</span></div>
-                    <div class="key black" data-note="C#4" style="--pos: 7"><span>C#4</span></div>
-                    <div class="key black" data-note="D#4" style="--pos: 8"><span>D#4</span></div>
-                    <div class="key black" data-note="F#4" style="--pos: 10"><span>F#4</span></div>
-                    <div class="key black" data-note="G#4" style="--pos: 11"><span>G#4</span></div>
-                    <div class="key black" data-note="A#4" style="--pos: 12"><span>A#4</span></div>
-                    <div class="key black" data-note="C#5" style="--pos: 14"><span>C#5</span></div>
-                    <div class="key black" data-note="D#5" style="--pos: 15"><span>D#5</span></div>
-                    <div class="key black" data-note="F#5" style="--pos: 17"><span>F#5</span></div>
-                    <div class="key black" data-note="G#5" style="--pos: 18"><span>G#5</span></div>
-                    <div class="key black" data-note="A#5" style="--pos: 19"><span>A#5</span></div>
+                <div class="lane-scroll">
+                  <div class="lane-track">
+                    <div class="fall-zone" id="fall-zone"></div>
+                    <div class="keyboard" id="keyboard">
+                      <div class="white-keys">
+                        <div class="key white" data-note="C3"><span>C3</span></div>
+                        <div class="key white" data-note="D3"><span>D3</span></div>
+                        <div class="key white" data-note="E3"><span>E3</span></div>
+                        <div class="key white" data-note="F3"><span>F3</span></div>
+                        <div class="key white" data-note="G3"><span>G3</span></div>
+                        <div class="key white" data-note="A3"><span>A3</span></div>
+                        <div class="key white" data-note="B3"><span>B3</span></div>
+                        <div class="key white" data-note="C4"><span>C4</span></div>
+                        <div class="key white" data-note="D4"><span>D4</span></div>
+                        <div class="key white" data-note="E4"><span>E4</span></div>
+                        <div class="key white" data-note="F4"><span>F4</span></div>
+                        <div class="key white" data-note="G4"><span>G4</span></div>
+                        <div class="key white" data-note="A4"><span>A4</span></div>
+                        <div class="key white" data-note="B4"><span>B4</span></div>
+                        <div class="key white" data-note="C5"><span>C5</span></div>
+                        <div class="key white" data-note="D5"><span>D5</span></div>
+                        <div class="key white" data-note="E5"><span>E5</span></div>
+                        <div class="key white" data-note="F5"><span>F5</span></div>
+                        <div class="key white" data-note="G5"><span>G5</span></div>
+                        <div class="key white" data-note="A5"><span>A5</span></div>
+                        <div class="key white" data-note="B5"><span>B5</span></div>
+                      </div>
+                      <div class="black-keys">
+                        <div class="key black" data-note="C#3" style="--pos: 0"><span>C#3</span></div>
+                        <div class="key black" data-note="D#3" style="--pos: 1"><span>D#3</span></div>
+                        <div class="key black" data-note="F#3" style="--pos: 3"><span>F#3</span></div>
+                        <div class="key black" data-note="G#3" style="--pos: 4"><span>G#3</span></div>
+                        <div class="key black" data-note="A#3" style="--pos: 5"><span>A#3</span></div>
+                        <div class="key black" data-note="C#4" style="--pos: 7"><span>C#4</span></div>
+                        <div class="key black" data-note="D#4" style="--pos: 8"><span>D#4</span></div>
+                        <div class="key black" data-note="F#4" style="--pos: 10"><span>F#4</span></div>
+                        <div class="key black" data-note="G#4" style="--pos: 11"><span>G#4</span></div>
+                        <div class="key black" data-note="A#4" style="--pos: 12"><span>A#4</span></div>
+                        <div class="key black" data-note="C#5" style="--pos: 14"><span>C#5</span></div>
+                        <div class="key black" data-note="D#5" style="--pos: 15"><span>D#5</span></div>
+                        <div class="key black" data-note="F#5" style="--pos: 17"><span>F#5</span></div>
+                        <div class="key black" data-note="G#5" style="--pos: 18"><span>G#5</span></div>
+                        <div class="key black" data-note="A#5" style="--pos: 19"><span>A#5</span></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

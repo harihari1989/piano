@@ -490,8 +490,20 @@ body[data-notation="carnatic"] .notation-hint.hint-carnatic {
 
 .lane {
   position: relative;
+}
+
+.lane-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lane-track {
+  position: relative;
   padding-top: 260px;
   min-height: 520px;
+  min-width: 100%;
+  width: max-content;
 }
 
 .fall-zone {
@@ -958,9 +970,68 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  .lane {
+  .lane-track {
     padding-top: 220px;
     min-height: 460px;
+  }
+}
+
+@media (max-width: 900px) {
+  .chapter-switcher {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .chapter-switcher a {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .notebook-toolbar {
+    align-items: flex-start;
+  }
+
+  .toolbar-actions {
+    width: 100%;
+  }
+
+  .toolbar-actions .notebook-btn {
+    flex: 1 1 160px;
+  }
+
+  .kuthu-actions,
+  .playground-buttons {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .kuthu-actions .notebook-btn,
+  .playground-buttons .notebook-btn {
+    flex: 1 1 160px;
+  }
+
+  .controls label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .controls input[type="range"] {
+    width: 100%;
+  }
+
+  .controls select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .range-toggle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
   }
 }
 
@@ -976,5 +1047,47 @@ footer {
 
   .hero {
     padding: 2.4rem 1rem 1.6rem;
+  }
+
+  .lane-track {
+    padding-top: 200px;
+    min-height: 420px;
+  }
+
+  .notebook-section {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 1.8rem 1rem;
+  }
+
+  .example-section {
+    padding: 1.6rem 1rem;
+  }
+
+  .button,
+  .notebook-btn {
+    width: 100%;
+  }
+
+  .kuthu-actions,
+  .playground-buttons {
+    flex-direction: column;
+  }
+
+  .cell-editor {
+    min-height: 140px;
+    max-height: 220px;
+    font-size: 1rem;
+  }
+
+  .key-hint {
+    font-size: 0.85rem;
+  }
+
+  .theory-table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
   }
 }

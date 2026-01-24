@@ -12,6 +12,7 @@ const themeButtons = document.querySelectorAll(".mode-btn");
 const playgroundButtons = document.querySelectorAll(".playground-btn");
 const notationButtons = document.querySelectorAll(".notation-btn");
 const rangeButtons = document.querySelectorAll(".range-btn");
+const highlightButtons = document.querySelectorAll(".highlight-btn");
 const keyHint = document.querySelector(".key-hint");
 const noteFormat = document.getElementById("note-format");
 const tempoRange = document.getElementById("tempo");
@@ -26,6 +27,7 @@ const loopToggle = document.getElementById("loop");
 const mapToggle = document.getElementById("map-toggle");
 const statusEl = document.getElementById("status");
 const fallZone = document.getElementById("fall-zone");
+const keyboard = document.getElementById("keyboard");
 
 const SAMPLE = "C4:1 D4:1 E4:1 F4:1 G4:1 A4:1 B4:1 C5:2";
 const CARNATIC_SAMPLE = "S4:1 R4:1 G4:1 M4:1 P4:1 D4:1 N4:1 S5:2";
@@ -349,6 +351,7 @@ const state = {
   manualActive: new Set(),
   notationMode: "western",
   keyboardRange: "lower",
+  highlightMode: "all",
 };
 
 const audioState = {
@@ -365,6 +368,7 @@ const audioState = {
 const keyMap = new Map();
 let keyboardMap = {};
 const pressedKeys = new Set();
+const pressTimers = new WeakMap();
 
 function buildKeyMap() {
   keyMap.clear();
@@ -433,6 +437,52 @@ function updateKeyboardRange(range) {
       keyHint.textContent += " Swaras map to C major (Sa=C, Ri=D, Ga=E, Ma=F, Pa=G, Dha=A, Ni=B).";
     }
   }
+}
+
+function isKeyHighlightAllowed(keyEl) {
+  if (state.highlightMode === "all") return true;
+  if (state.highlightMode === "white") return keyEl.classList.contains("white");
+  if (state.highlightMode === "black") return keyEl.classList.contains("black");
+  return true;
+}
+
+function isKeyActive(keyEl) {
+  return state.manualActive.has(keyEl) || (state.activeCounts.get(keyEl) || 0) > 0;
+}
+
+function updateKeyHighlight(keyEl) {
+  const shouldShow = isKeyActive(keyEl) && isKeyHighlightAllowed(keyEl);
+  keyEl.classList.toggle("active", shouldShow);
+}
+
+function refreshKeyHighlights() {
+  keyMap.forEach((keyEl) => {
+    updateKeyHighlight(keyEl);
+  });
+}
+
+function setHighlightMode(mode) {
+  state.highlightMode = mode || "all";
+  highlightButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.highlight === state.highlightMode);
+  });
+  refreshKeyHighlights();
+}
+
+function pulseKeyPress(keyEl) {
+  if (!isKeyHighlightAllowed(keyEl)) return;
+  const existing = pressTimers.get(keyEl);
+  if (existing) {
+    window.clearTimeout(existing);
+  }
+  keyEl.classList.remove("pressing");
+  void keyEl.offsetWidth;
+  keyEl.classList.add("pressing");
+  const timeout = window.setTimeout(() => {
+    keyEl.classList.remove("pressing");
+    pressTimers.delete(keyEl);
+  }, 180);
+  pressTimers.set(keyEl, timeout);
 }
 
 function setStudioTab(tabName) {
@@ -1225,31 +1275,28 @@ function ensureAudio() {
 function addAutoActive(keyEl) {
   const count = state.activeCounts.get(keyEl) || 0;
   state.activeCounts.set(keyEl, count + 1);
-  keyEl.classList.add("active");
+  updateKeyHighlight(keyEl);
 }
 
 function removeAutoActive(keyEl) {
   const count = (state.activeCounts.get(keyEl) || 0) - 1;
   if (count <= 0) {
     state.activeCounts.delete(keyEl);
-    if (!state.manualActive.has(keyEl)) {
-      keyEl.classList.remove("active");
-    }
+    updateKeyHighlight(keyEl);
     return;
   }
   state.activeCounts.set(keyEl, count);
+  updateKeyHighlight(keyEl);
 }
 
 function addManualActive(keyEl) {
   state.manualActive.add(keyEl);
-  keyEl.classList.add("active");
+  updateKeyHighlight(keyEl);
 }
 
 function removeManualActive(keyEl) {
   state.manualActive.delete(keyEl);
-  if (!state.activeCounts.has(keyEl)) {
-    keyEl.classList.remove("active");
-  }
+  updateKeyHighlight(keyEl);
 }
 
 function stopAllVoices() {
@@ -1324,18 +1371,36 @@ function clearPlayback() {
     note.el.remove();
   });
   state.activeCounts.clear();
-  document.querySelectorAll(".key.active").forEach((keyEl) => {
-    if (!state.manualActive.has(keyEl)) {
-      keyEl.classList.remove("active");
-    }
-  });
+  refreshKeyHighlights();
   state.notes = [];
+}
+
+function getKeyboardBounds(fallRect) {
+  if (!keyboard) return null;
+  const keyboardRect = keyboard.getBoundingClientRect();
+  if (!keyboardRect.width) return null;
+  return {
+    left: keyboardRect.left - fallRect.left,
+    right: keyboardRect.right - fallRect.left,
+  };
+}
+
+function clampNoteLeft(keyRect, width, fallRect, keyboardBounds) {
+  const rawLeft =
+    keyRect.left - fallRect.left + keyRect.width / 2 - width / 2;
+  if (!keyboardBounds) return rawLeft;
+  const minLeft = keyboardBounds.left;
+  const maxLeft = keyboardBounds.right - width;
+  if (!Number.isFinite(minLeft) || !Number.isFinite(maxLeft)) return rawLeft;
+  if (maxLeft < minLeft) return minLeft;
+  return Math.min(maxLeft, Math.max(minLeft, rawLeft));
 }
 
 function prepareNotes(events) {
   fallZone.innerHTML = "";
   const beatMs = state.beatMs;
   const fallRect = fallZone.getBoundingClientRect();
+  const keyboardBounds = getKeyboardBounds(fallRect);
   const baseHeight = 22;
   let cursorBeats = 0;
   let noteIndex = 0;
@@ -1353,8 +1418,7 @@ function prepareNotes(events) {
     const keyRect = keyEl.getBoundingClientRect();
     const width = Math.max(28, keyRect.width * 0.75);
     const height = Math.max(18, baseHeight + (event.beats - 1) * 14);
-    const left =
-      keyRect.left - fallRect.left + keyRect.width / 2 - width / 2;
+    const left = clampNoteLeft(keyRect, width, fallRect, keyboardBounds);
     const el = document.createElement("div");
     el.className = "note";
     el.style.width = `${width}px`;
@@ -1393,11 +1457,11 @@ function prepareNotes(events) {
 function refreshNotePositions() {
   if (!state.notes.length) return;
   const fallRect = fallZone.getBoundingClientRect();
+  const keyboardBounds = getKeyboardBounds(fallRect);
   state.notes.forEach((note) => {
     const keyRect = note.keyEl.getBoundingClientRect();
     const width = Math.max(28, keyRect.width * 0.75);
-    const left =
-      keyRect.left - fallRect.left + keyRect.width / 2 - width / 2;
+    const left = clampNoteLeft(keyRect, width, fallRect, keyboardBounds);
     note.el.style.width = `${width}px`;
     note.el.style.left = `${left}px`;
   });
@@ -1425,6 +1489,7 @@ function tick(now) {
     if (!note.active && t >= note.startMs) {
       note.active = true;
       addAutoActive(note.keyEl);
+      pulseKeyPress(note.keyEl);
     }
 
     if (!note.audioStarted && t >= note.startMs) {
@@ -1495,6 +1560,10 @@ function stop() {
 
 buildKeyMap();
 updateKeyboardRange(state.keyboardRange);
+const initialHighlight =
+  Array.from(highlightButtons).find((button) => button.classList.contains("is-active"))
+    ?.dataset.highlight || "all";
+setHighlightMode(initialHighlight);
 tempoValue.textContent = tempoRange.value;
 fallValue.textContent = `${fallRange.value}ms`;
 volumeValue.textContent = `${volumeRange.value}%`;
@@ -1557,6 +1626,13 @@ rangeButtons.forEach((button) => {
     rangeButtons.forEach((btn) => {
       btn.classList.toggle("is-active", btn === button);
     });
+  });
+});
+
+highlightButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const mode = button.dataset.highlight || "all";
+    setHighlightMode(mode);
   });
 });
 
